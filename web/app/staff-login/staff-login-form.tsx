@@ -40,7 +40,7 @@ export function StaffLoginForm() {
   return (
     <div className="w-full max-w-sm">
       <Link href="/" className="font-display text-xl font-medium tracking-[0.08em] text-ink-900">
-        Nadi Amerta
+        The Nadi Amerta
       </Link>
       <h1 className="text-display-md mt-10 text-teal-700">Operations portal</h1>
       <p className="mt-3 text-[15px] text-ink-700">Sign in with your staff account.</p>

@@ -86,7 +86,7 @@ export function ContactForm() {
       <div className="flex items-start gap-3">
         <Checkbox id="c-consent" required className="mt-0.5" />
         <Label htmlFor="c-consent" className="text-[13px] leading-snug font-normal text-stone-600">
-          I agree that Nadi Amerta may contact me about this enquiry.
+          I agree that The Nadi Amerta may contact me about this enquiry.
         </Label>
       </div>
 

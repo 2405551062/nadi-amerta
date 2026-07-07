@@ -24,7 +24,7 @@ export default async function BookingLayout({
       <header className="sticky top-0 z-40 border-b border-border bg-ivory-100/90 backdrop-blur-xl">
         <div className="container-na flex h-16 items-center justify-between">
           <Link href="/" className="font-display text-xl font-medium tracking-[0.08em] text-ink-900">
-            Nadi Amerta
+            The Nadi Amerta
           </Link>
           <Link
             href={`/villas/${slug}`}

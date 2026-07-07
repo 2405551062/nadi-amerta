@@ -15,7 +15,7 @@ export default function StaffLoginPage() {
         <Image src="/photos/hero-gorge.webp" alt="" fill priority sizes="60vw" className="object-cover" />
         <div className="overlay-hero absolute inset-0" aria-hidden />
         <div className="absolute right-12 bottom-12 left-12 text-ivory-100">
-          <p className="eyebrow-dark eyebrow">Nadi Amerta · Operations</p>
+          <p className="eyebrow-dark eyebrow">The Nadi Amerta · Operations</p>
           <p className="font-display mt-3 text-2xl leading-snug">
             The house runs on quiet coordination.
           </p>

@@ -92,7 +92,7 @@ export function AuthForm({ mode }: { mode: "signin" | "join" }) {
   return (
     <div className="w-full max-w-sm">
       <Link href="/" className="font-display text-xl font-medium tracking-[0.08em] text-ink-900">
-        Nadi Amerta
+        The Nadi Amerta
       </Link>
       <h1 className="text-display-md mt-10 text-teal-700">
         {mode === "signin" ? "Welcome back" : "Create your account"}
@@ -223,7 +223,7 @@ export function AuthForm({ mode }: { mode: "signin" | "join" }) {
 
       <p className="mt-10 text-[13px] text-stone-500">
         {mode === "signin" ? (
-          <>New to Nadi Amerta? <Link href="/join" className="font-medium text-teal-700 underline underline-offset-4">Create an account</Link></>
+          <>New to The Nadi Amerta? <Link href="/join" className="font-medium text-teal-700 underline underline-offset-4">Create an account</Link></>
         ) : (
           <>Already a guest? <Link href="/signin" className="font-medium text-teal-700 underline underline-offset-4">Sign in</Link></>
         )}

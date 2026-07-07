@@ -14,7 +14,7 @@ const COLUMNS: { title: string; links: { label: string; href: string }[] }[] = [
   {
     title: "The estate",
     links: [
-      { label: "About Nadi Amerta", href: "/about" },
+      { label: "About The Nadi Amerta", href: "/about" },
       { label: "Tri Hita Karana", href: "/about" },
       { label: "Journal", href: "/about" },
       { label: "Contact", href: "/contact" },
@@ -47,7 +47,7 @@ export function Footer() {
       <div className="container-na py-20 lg:py-24">
         <div className="flex flex-col gap-12 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-md">
-            <p className="eyebrow">Nadi Amerta · Ubud</p>
+            <p className="eyebrow">The Nadi Amerta · Ubud</p>
             <h2 className="text-display-md mt-4">The river is waiting.</h2>
           </div>
           <form className="flex w-full max-w-sm gap-3" action="/contact">

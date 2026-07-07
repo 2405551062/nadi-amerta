@@ -31,10 +31,10 @@ export function OpsSidebar({ user }: { user?: { name: string; role: string } }) 
 
   return (
     <aside className="theme-forest flex w-16 shrink-0 flex-col border-r border-amerta-300/15 bg-forest-900 lg:w-64">
-      <Link href="/" className="flex items-center gap-3 px-4 py-6 lg:px-6" aria-label="Nadi Amerta home">
+      <Link href="/" className="flex items-center gap-3 px-4 py-6 lg:px-6" aria-label="The Nadi Amerta home">
         <LotusMark className="size-9 shrink-0" />
         <span className="font-display hidden text-lg font-medium tracking-[0.06em] text-ivory-100 lg:block">
-          Nadi Amerta
+          The Nadi Amerta
         </span>
       </Link>
 

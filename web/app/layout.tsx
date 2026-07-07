@@ -27,8 +27,8 @@ const jetbrains = JetBrains_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Nadi Amerta — Villa & Retreat · Bali",
-    template: "%s · Nadi Amerta",
+    default: "The Nadi Amerta — Villa & Retreat · Bali",
+    template: "%s · The Nadi Amerta",
   },
   description:
     "Eight private pool villas on a riverside ridge in Ubud, Bali. Where flowing waters meet sacred ground.",

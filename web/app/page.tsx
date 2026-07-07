@@ -95,7 +95,7 @@ export default async function LandingPage() {
         </div>
         <Reveal className="lg:col-span-5 lg:col-start-8" delay={0.15}>
           <p className="max-w-[68ch] text-lg leading-relaxed text-ink-700">
-            Nadi Amerta sits on twelve hectares of riverside ridge above the
+            The Nadi Amerta sits on twelve hectares of riverside ridge above the
             Ayung, in the artists&apos; banjar of Pengosekan. Every detail honours
             the Tri Hita Karana philosophy — harmony with the divine, with
             nature, and with one another.

@@ -14,7 +14,7 @@ export default function ErrorPage({
 }) {
   return (
     <div className="theme-forest flex min-h-svh flex-col items-center justify-center bg-forest-950 px-6 text-center text-ivory-100">
-      <p className="font-display text-xl tracking-[0.08em]">Nadi Amerta</p>
+      <p className="font-display text-xl tracking-[0.08em]">The Nadi Amerta</p>
       <h1 className="text-display-lg mt-10 text-ivory-50">Still waters for a moment.</h1>
       <p className="mt-4 max-w-md text-ivory-100/70">
         Something interrupted the flow on our side. Nothing you did — please try again.

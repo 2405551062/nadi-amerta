@@ -19,7 +19,7 @@ export default function NotFound() {
       </svg>
       <style>{`@keyframes drift { from { transform: translateX(-4%);} to { transform: translateX(4%);} }`}</style>
 
-      <p className="font-display text-xl tracking-[0.08em]">Nadi Amerta</p>
+      <p className="font-display text-xl tracking-[0.08em]">The Nadi Amerta</p>
       <h1 className="text-display-lg mt-10 text-ivory-50">This path returns to the river.</h1>
       <p className="mt-4 max-w-md text-ivory-100/70">
         The page you seek has flowed on. Everything else is where you left it.

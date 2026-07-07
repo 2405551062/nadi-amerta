@@ -49,9 +49,9 @@ export function Navbar({ overHero = false }: { overHero?: boolean }) {
           <Link
             href="/"
             className="font-display text-xl font-medium tracking-[0.08em]"
-            aria-label="Nadi Amerta — home"
+            aria-label="The Nadi Amerta — home"
           >
-            Nadi Amerta
+            The Nadi Amerta
           </Link>
 
           <nav className="hidden items-center gap-8 lg:flex" aria-label="Primary">

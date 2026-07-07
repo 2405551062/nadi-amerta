@@ -25,7 +25,7 @@ export async function GET(
   const stay = await getStayByCode(decodeURIComponent(code));
   if (!stay) return new Response("Not found", { status: 404 });
   const villa = await getVilla(stay.villaSlug);
-  const name = villa?.name ?? "Nadi Amerta stay";
+  const name = villa?.name ?? "The Nadi Amerta stay";
   const start = icsDate(stay.checkIn);
   const end = icsDate(stay.checkOut);
   const stamp = new Date().toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
@@ -41,9 +41,9 @@ export async function GET(
     `DTSTAMP:${stamp}`,
     `DTSTART;VALUE=DATE:${start}`,
     `DTEND;VALUE=DATE:${end}`,
-    `SUMMARY:Nadi Amerta — ${name}`,
+    `SUMMARY:The Nadi Amerta — ${name}`,
     `DESCRIPTION:Reservation ${stay.code}. Check-in from 14:00\\, Ubud\\, Bali.`,
-    "LOCATION:Nadi Amerta Villa & Retreat\\, Banjar Pengosekan\\, Ubud\\, Bali",
+    "LOCATION:The Nadi Amerta Villa & Retreat\\, Banjar Pengosekan\\, Ubud\\, Bali",
     "END:VEVENT",
     "END:VCALENDAR",
   ];
