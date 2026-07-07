@@ -1,4 +1,4 @@
-# Nadi Amerta — Villa & Retreat Operations System
+# The Nadi Amerta — Villa & Retreat Operations System
 
 A full-stack reservation & operations platform for a boutique luxury villa in Ubud, Bali.
 Enterprise systems case study — Universitas Udayana.
