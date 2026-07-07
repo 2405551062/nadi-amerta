@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!-- In-villa dining menu (product.template, x_kind=fnb). -->
+
+    <record id="menu_bebek" model="product.template">
+        <field name="name">Bebek Betutu</field>
+        <field name="type">consu</field>
+        <field name="categ_id" ref="product_category_fnb"/>
+        <field name="list_price">480000</field>
+        <field name="x_kind">fnb</field>
+        <field name="x_category">From Chef Ketut</field>
+        <field name="x_dietary">gf</field>
+        <field name="x_featured">1</field>
+        <field name="x_excerpt">Slow-roasted duck in banana leaf, 12 hours, village spice paste — order by 14:00.</field>
+    </record>
+
+    <record id="menu_prawns" model="product.template">
+        <field name="name">Ayung River Prawns</field>
+        <field name="type">consu</field>
+        <field name="categ_id" ref="product_category_fnb"/>
+        <field name="list_price">420000</field>
+        <field name="x_kind">fnb</field>
+        <field name="x_category">From Chef Ketut</field>
+        <field name="x_dietary">gf</field>
+        <field name="x_featured">1</field>
+        <field name="x_excerpt">Charcoal-grilled river prawns, sambal matah, lime leaf.</field>
+    </record>
+
+    <record id="menu_breakfast" model="product.template">
+        <field name="name">Nadi Amerta Breakfast</field>
+        <field name="type">consu</field>
+        <field name="categ_id" ref="product_category_fnb"/>
+        <field name="list_price">280000</field>
+        <field name="x_kind">fnb</field>
+        <field name="x_category">Breakfast</field>
+        <field name="x_excerpt">Tropical fruit, house granola, eggs any way, Kintamani coffee.</field>
+    </record>
+
+    <record id="menu_bubur" model="product.template">
+        <field name="name">Bubur Injin</field>
+        <field name="type">consu</field>
+        <field name="categ_id" ref="product_category_fnb"/>
+        <field name="list_price">180000</field>
+        <field name="x_kind">fnb</field>
+        <field name="x_category">Breakfast</field>
+        <field name="x_dietary">vegan,gf</field>
+        <field name="x_excerpt">Black rice porridge, palm sugar, young coconut.</field>
+    </record>
+
+    <record id="menu_nasi_campur" model="product.template">
+        <field name="name">Nasi Campur Bali</field>
+        <field name="type">consu</field>
+        <field name="categ_id" ref="product_category_fnb"/>
+        <field name="list_price">320000</field>
+        <field name="x_kind">fnb</field>
+        <field name="x_category">Balinese</field>
+        <field name="x_excerpt">Ceremonial rice plate — lawar, sate lilit, urab, sambal.</field>
+    </record>
+
+    <record id="menu_gado" model="product.template">
+        <field name="name">Gado-Gado</field>
+        <field name="type">consu</field>
+        <field name="categ_id" ref="product_category_fnb"/>
+        <field name="list_price">240000</field>
+        <field name="x_kind">fnb</field>
+        <field name="x_category">Balinese</field>
+        <field name="x_dietary">vegan</field>
+        <field name="x_excerpt">Market vegetables, tempe, peanut dressing.</field>
+    </record>
+
+    <record id="menu_rigatoni" model="product.template">
+        <field name="name">Rigatoni al Ragù</field>
+        <field name="type">consu</field>
+        <field name="categ_id" ref="product_category_fnb"/>
+        <field name="list_price">340000</field>
+        <field name="x_kind">fnb</field>
+        <field name="x_category">Western</field>
+        <field name="x_excerpt">Six-hour beef ragù, aged parmesan.</field>
+    </record>
+
+    <record id="menu_burger" model="product.template">
+        <field name="name">Gorge View Burger</field>
+        <field name="type">consu</field>
+        <field name="categ_id" ref="product_category_fnb"/>
+        <field name="list_price">380000</field>
+        <field name="x_kind">fnb</field>
+        <field name="x_category">Western</field>
+        <field name="x_excerpt">Wagyu blend, brioche, hand-cut fries.</field>
+    </record>
+
+    <record id="menu_children" model="product.template">
+        <field name="name">Little Explorer Bowl</field>
+        <field name="type">consu</field>
+        <field name="categ_id" ref="product_category_fnb"/>
+        <field name="list_price">160000</field>
+        <field name="x_kind">fnb</field>
+        <field name="x_category">Children</field>
+        <field name="x_dietary">gf</field>
+        <field name="x_excerpt">Chicken rice bowl, cucumber, no surprises.</field>
+    </record>
+
+    <record id="menu_wine" model="product.template">
+        <field name="name">Plaga Chardonnay</field>
+        <field name="type">consu</field>
+        <field name="categ_id" ref="product_category_fnb"/>
+        <field name="list_price">520000</field>
+        <field name="x_kind">fnb</field>
+        <field name="x_category">Cellar</field>
+        <field name="x_dietary">vegan,gf</field>
+        <field name="x_excerpt">Bali's own — bright, cold, made for pool afternoons. Bottle.</field>
+    </record>
+
+</odoo>

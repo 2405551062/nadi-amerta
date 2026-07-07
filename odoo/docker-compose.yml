@@ -1,0 +1,39 @@
+# Odoo 17 + PostgreSQL 15 for Nadi Amerta.
+# Run from WSL:  cd /mnt/c/xampp/htdocs/nadiamerta/odoo && docker compose up -d
+services:
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: odoo
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-odoo}
+    volumes:
+      - odoo-db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "odoo"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  odoo:
+    image: odoo:17
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8069:8069"   # web / JSON-RPC
+      - "8072:8072"   # longpolling (chatter live updates)
+    environment:
+      HOST: db
+      USER: odoo
+      PASSWORD: ${DB_PASSWORD:-odoo}
+    volumes:
+      - odoo-web:/var/lib/odoo
+      - ./addons:/mnt/extra-addons
+      - ./config/odoo.conf:/etc/odoo/odoo.conf:ro
+    restart: unless-stopped
+
+volumes:
+  odoo-db:
+  odoo-web:

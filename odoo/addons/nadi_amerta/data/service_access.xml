@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- No noupdate: re-applied on every module upgrade so the BFF service account
+     keeps full access. The Next.js BFF authenticates as this user (admin in dev);
+     the General Manager group implies every Nadi role, granting access to all
+     custom models. In production, point ODOO_USER at a dedicated service user
+     and add it here instead of admin. -->
+<odoo>
+    <record id="base.user_admin" model="res.users">
+        <field name="groups_id" eval="[(4, ref('nadi_amerta.group_nadi_manager'))]"/>
+    </record>
+</odoo>

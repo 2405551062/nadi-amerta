@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!-- The 8 villas as regular catalog data (product.template, x_kind=villa).
+         Loads on module install/update regardless of the demo flag.
+         Prices mirror web/lib/data.ts so the two data sets line up. -->
+
+    <record id="villa_tirta" model="product.template">
+        <field name="name">Villa Tirta</field>
+        <field name="type">service</field>
+        <field name="categ_id" ref="product_category_villa"/>
+        <field name="list_price">8500000</field>
+        <field name="x_kind">villa</field>
+        <field name="x_slug">villa-tirta</field>
+        <field name="x_villa_type">Riverside Collection</field>
+        <field name="x_view">river</field>
+        <field name="x_bedrooms">1</field>
+        <field name="x_capacity">2</field>
+        <field name="x_size_m2">150</field>
+        <field name="x_min_stay">2</field>
+        <field name="x_availability">occupied</field>
+        <field name="x_excerpt">One-bedroom sanctuary suspended over the Ayung gorge.</field>
+    </record>
+
+    <record id="villa_surya" model="product.template">
+        <field name="name">Villa Surya</field>
+        <field name="type">service</field>
+        <field name="categ_id" ref="product_category_villa"/>
+        <field name="list_price">12500000</field>
+        <field name="x_kind">villa</field>
+        <field name="x_slug">villa-surya</field>
+        <field name="x_villa_type">Riverside Collection</field>
+        <field name="x_view">river</field>
+        <field name="x_bedrooms">3</field>
+        <field name="x_capacity">6</field>
+        <field name="x_size_m2">350</field>
+        <field name="x_min_stay">2</field>
+        <field name="x_availability">available</field>
+        <field name="x_excerpt">Three bedrooms, a 16-metre pool, and the sunrise to yourself.</field>
+    </record>
+
+    <record id="villa_chandra" model="product.template">
+        <field name="name">Villa Chandra</field>
+        <field name="type">service</field>
+        <field name="categ_id" ref="product_category_villa"/>
+        <field name="list_price">9500000</field>
+        <field name="x_kind">villa</field>
+        <field name="x_slug">villa-chandra</field>
+        <field name="x_villa_type">Rice Paddy Collection</field>
+        <field name="x_view">rice</field>
+        <field name="x_bedrooms">2</field>
+        <field name="x_capacity">4</field>
+        <field name="x_size_m2">280</field>
+        <field name="x_min_stay">2</field>
+        <field name="x_availability">cleaning</field>
+        <field name="x_excerpt">Two bedrooms opening onto emerald terraces and a yoga bale.</field>
+    </record>
+
+    <record id="villa_lotus" model="product.template">
+        <field name="name">Villa Lotus</field>
+        <field name="type">service</field>
+        <field name="categ_id" ref="product_category_villa"/>
+        <field name="list_price">6800000</field>
+        <field name="x_kind">villa</field>
+        <field name="x_slug">villa-lotus</field>
+        <field name="x_villa_type">Garden Collection</field>
+        <field name="x_view">garden</field>
+        <field name="x_bedrooms">1</field>
+        <field name="x_capacity">2</field>
+        <field name="x_size_m2">140</field>
+        <field name="x_min_stay">2</field>
+        <field name="x_availability">occupied</field>
+        <field name="x_excerpt">A canopy bed, a plunge pool, and a garden that hums at dawn.</field>
+    </record>
+
+    <record id="villa_frangipani" model="product.template">
+        <field name="name">Villa Frangipani</field>
+        <field name="type">service</field>
+        <field name="categ_id" ref="product_category_villa"/>
+        <field name="list_price">8200000</field>
+        <field name="x_kind">villa</field>
+        <field name="x_slug">villa-frangipani</field>
+        <field name="x_villa_type">Garden Collection</field>
+        <field name="x_view">garden</field>
+        <field name="x_bedrooms">2</field>
+        <field name="x_capacity">4</field>
+        <field name="x_size_m2">240</field>
+        <field name="x_min_stay">2</field>
+        <field name="x_availability">available</field>
+        <field name="x_excerpt">The family villa — two pavilions around a shaded garden pool.</field>
+    </record>
+
+    <record id="villa_hibiscus" model="product.template">
+        <field name="name">Villa Hibiscus</field>
+        <field name="type">service</field>
+        <field name="categ_id" ref="product_category_villa"/>
+        <field name="list_price">7200000</field>
+        <field name="x_kind">villa</field>
+        <field name="x_slug">villa-hibiscus</field>
+        <field name="x_villa_type">Rice Paddy Collection</field>
+        <field name="x_view">rice</field>
+        <field name="x_bedrooms">1</field>
+        <field name="x_capacity">2</field>
+        <field name="x_size_m2">145</field>
+        <field name="x_min_stay">2</field>
+        <field name="x_availability">inspection</field>
+        <field name="x_excerpt">Paddy-edge stillness with a west-facing plunge pool.</field>
+    </record>
+
+    <record id="villa_bambu" model="product.template">
+        <field name="name">Villa Bambu</field>
+        <field name="type">service</field>
+        <field name="categ_id" ref="product_category_villa"/>
+        <field name="list_price">9800000</field>
+        <field name="x_kind">villa</field>
+        <field name="x_slug">villa-bambu</field>
+        <field name="x_villa_type">Riverside Collection</field>
+        <field name="x_view">river</field>
+        <field name="x_bedrooms">2</field>
+        <field name="x_capacity">4</field>
+        <field name="x_size_m2">260</field>
+        <field name="x_min_stay">3</field>
+        <field name="x_availability">available</field>
+        <field name="x_excerpt">A soaring bamboo pavilion above the river bend.</field>
+    </record>
+
+    <record id="villa_jepun" model="product.template">
+        <field name="name">Villa Jepun</field>
+        <field name="type">service</field>
+        <field name="categ_id" ref="product_category_villa"/>
+        <field name="list_price">6200000</field>
+        <field name="x_kind">villa</field>
+        <field name="x_slug">villa-jepun</field>
+        <field name="x_villa_type">Garden Collection</field>
+        <field name="x_view">garden</field>
+        <field name="x_bedrooms">1</field>
+        <field name="x_capacity">2</field>
+        <field name="x_size_m2">135</field>
+        <field name="x_min_stay">2</field>
+        <field name="x_availability">maintenance</field>
+        <field name="x_excerpt">The quiet corner villa, wrapped in white jepun blossom.</field>
+    </record>
+
+</odoo>

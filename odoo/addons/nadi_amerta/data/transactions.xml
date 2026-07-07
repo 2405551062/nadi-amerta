@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!-- Seed guests, reservations, requests, housekeeping tasks and dining
+         orders so every page shows real Odoo content. Loaded as data (not
+         demo) because the demo flag is unreliable on scripted DB init. -->
+
+    <!-- ===================== Guests ===================== -->
+    <record id="guest_amara" model="res.partner">
+        <field name="name">Amara Chen</field>
+        <field name="email">amara@example.com</field>
+        <field name="phone">+65 9123 4567</field>
+        <field name="x_nationality">Singaporean</field>
+        <field name="x_loyalty_tier">gold</field>
+        <field name="x_dietary">Gluten-free</field>
+        <field name="x_arrival_drink">Young coconut</field>
+    </record>
+    <record id="guest_sarah" model="res.partner">
+        <field name="name">Sarah Jenkins</field><field name="email">sarah@example.com</field>
+        <field name="x_nationality">Australian</field>
+    </record>
+    <record id="guest_kenji" model="res.partner">
+        <field name="name">Kenji Nakamura</field><field name="email">kenji.n@example.com</field>
+        <field name="x_nationality">Japanese</field>
+    </record>
+    <record id="guest_anya" model="res.partner">
+        <field name="name">Anya Sharma</field><field name="email">anya@example.com</field>
+        <field name="x_nationality">Indian</field><field name="x_loyalty_tier">platinum</field>
+    </record>
+    <record id="guest_tanaka" model="res.partner">
+        <field name="name">Kenji &amp; Yui Tanaka</field><field name="email">tanaka@example.com</field>
+        <field name="x_nationality">Japanese</field>
+    </record>
+    <record id="guest_cole" model="res.partner">
+        <field name="name">David &amp; Emma Cole</field><field name="email">cole@example.com</field>
+        <field name="x_nationality">British</field>
+    </record>
+
+    <!-- ===================== Reservations ===================== -->
+    <!-- Amara: upcoming / past / cancelled -->
+    <record id="res_amara_upcoming" model="villa.reservation">
+        <field name="partner_id" ref="guest_amara"/><field name="product_id" ref="villa_tirta"/>
+        <field name="check_in_date" eval="(DateTime.now() + relativedelta(days=37)).strftime('%Y-%m-%d')"/>
+        <field name="check_out_date" eval="(DateTime.now() + relativedelta(days=41)).strftime('%Y-%m-%d')"/>
+        <field name="guests">2</field><field name="source">direct</field><field name="state">confirmed</field>
+    </record>
+    <record id="res_amara_past" model="villa.reservation">
+        <field name="partner_id" ref="guest_amara"/><field name="product_id" ref="villa_surya"/>
+        <field name="check_in_date" eval="(DateTime.now() - relativedelta(days=180)).strftime('%Y-%m-%d')"/>
+        <field name="check_out_date" eval="(DateTime.now() - relativedelta(days=175)).strftime('%Y-%m-%d')"/>
+        <field name="guests">4</field><field name="source">direct</field><field name="state">checked_out</field>
+    </record>
+    <record id="res_amara_cancelled" model="villa.reservation">
+        <field name="partner_id" ref="guest_amara"/><field name="product_id" ref="villa_jepun"/>
+        <field name="check_in_date" eval="(DateTime.now() - relativedelta(days=260)).strftime('%Y-%m-%d')"/>
+        <field name="check_out_date" eval="(DateTime.now() - relativedelta(days=258)).strftime('%Y-%m-%d')"/>
+        <field name="guests">2</field><field name="source">ota</field><field name="channel">Airbnb</field>
+        <field name="state">cancelled</field>
+    </record>
+    <!-- In-house (Amara currently at Tirta) + Tanaka at Lotus -->
+    <record id="res_amara_inhouse" model="villa.reservation">
+        <field name="partner_id" ref="guest_amara"/><field name="product_id" ref="villa_tirta"/>
+        <field name="check_in_date" eval="(DateTime.now() - relativedelta(days=3)).strftime('%Y-%m-%d')"/>
+        <field name="check_out_date" eval="(DateTime.now() + relativedelta(days=1)).strftime('%Y-%m-%d')"/>
+        <field name="guests">2</field><field name="source">direct</field><field name="state">checked_in</field>
+    </record>
+    <record id="res_tanaka" model="villa.reservation">
+        <field name="partner_id" ref="guest_tanaka"/><field name="product_id" ref="villa_lotus"/>
+        <field name="check_in_date" eval="(DateTime.now() - relativedelta(days=3)).strftime('%Y-%m-%d')"/>
+        <field name="check_out_date" eval="(DateTime.now() + relativedelta(days=4)).strftime('%Y-%m-%d')"/>
+        <field name="guests">2</field><field name="source">ota</field><field name="channel">Agoda</field>
+        <field name="state">checked_in</field>
+    </record>
+    <!-- Arrivals today -->
+    <record id="res_sarah" model="villa.reservation">
+        <field name="partner_id" ref="guest_sarah"/><field name="product_id" ref="villa_frangipani"/>
+        <field name="check_in_date" eval="DateTime.now().strftime('%Y-%m-%d')"/>
+        <field name="check_out_date" eval="(DateTime.now() + relativedelta(days=5)).strftime('%Y-%m-%d')"/>
+        <field name="guests">4</field><field name="source">direct</field><field name="state">confirmed</field>
+    </record>
+    <record id="res_kenji" model="villa.reservation">
+        <field name="partner_id" ref="guest_kenji"/><field name="product_id" ref="villa_hibiscus"/>
+        <field name="check_in_date" eval="DateTime.now().strftime('%Y-%m-%d')"/>
+        <field name="check_out_date" eval="(DateTime.now() + relativedelta(days=3)).strftime('%Y-%m-%d')"/>
+        <field name="guests">2</field><field name="source">ota</field><field name="channel">Booking.com</field>
+        <field name="state">confirmed</field>
+    </record>
+    <record id="res_anya" model="villa.reservation">
+        <field name="partner_id" ref="guest_anya"/><field name="product_id" ref="villa_surya"/>
+        <field name="check_in_date" eval="DateTime.now().strftime('%Y-%m-%d')"/>
+        <field name="check_out_date" eval="(DateTime.now() + relativedelta(days=6)).strftime('%Y-%m-%d')"/>
+        <field name="guests">6</field><field name="source">agent</field><field name="state">confirmed</field>
+    </record>
+    <!-- Departure today -->
+    <record id="res_cole" model="villa.reservation">
+        <field name="partner_id" ref="guest_cole"/><field name="product_id" ref="villa_chandra"/>
+        <field name="check_in_date" eval="(DateTime.now() - relativedelta(days=5)).strftime('%Y-%m-%d')"/>
+        <field name="check_out_date" eval="DateTime.now().strftime('%Y-%m-%d')"/>
+        <field name="guests">3</field><field name="source">direct</field><field name="state">checked_in</field>
+    </record>
+
+    <!-- ===================== Guest requests ===================== -->
+    <record id="req_yoga" model="villa.guest.request">
+        <field name="name">Extra yoga mats</field><field name="request_type">request</field>
+        <field name="partner_id" ref="guest_amara"/><field name="reservation_id" ref="res_amara_inhouse"/>
+        <field name="detail">Two more mats on the deck for tomorrow's sunrise session, please.</field>
+        <field name="priority">low</field><field name="state">resolved</field>
+    </record>
+    <record id="req_checkout" model="villa.guest.request">
+        <field name="name">Late checkout on the 8th</field><field name="request_type">request</field>
+        <field name="partner_id" ref="guest_amara"/><field name="reservation_id" ref="res_amara_inhouse"/>
+        <field name="detail">Our flight leaves at 21:40 — is a 16:00 checkout possible?</field>
+        <field name="priority">medium</field><field name="state">in_progress</field>
+    </record>
+    <record id="req_pool" model="villa.guest.request">
+        <field name="name">Pool heating</field><field name="request_type">complaint</field>
+        <field name="partner_id" ref="guest_tanaka"/><field name="reservation_id" ref="res_tanaka"/>
+        <field name="detail">The plunge pool was noticeably cold last evening.</field>
+        <field name="priority">high</field><field name="state">open</field>
+    </record>
+
+    <!-- ===================== Housekeeping tasks ===================== -->
+    <record id="hk_chandra" model="villa.housekeeping.task">
+        <field name="product_id" ref="villa_chandra"/><field name="reservation_id" ref="res_cole"/>
+        <field name="task_type">turnover</field><field name="state">doing</field>
+    </record>
+    <record id="hk_hibiscus" model="villa.housekeeping.task">
+        <field name="product_id" ref="villa_hibiscus"/><field name="task_type">turnover</field>
+        <field name="state">inspection</field>
+    </record>
+    <record id="hk_tirta" model="villa.housekeeping.task">
+        <field name="product_id" ref="villa_tirta"/><field name="task_type">stayover</field>
+        <field name="state">todo</field>
+    </record>
+    <record id="hk_jepun" model="villa.housekeeping.task">
+        <field name="product_id" ref="villa_jepun"/><field name="task_type">deep</field>
+        <field name="state">todo</field>
+    </record>
+
+    <!-- ===================== Dining orders ===================== -->
+    <record id="fnb_amara" model="villa.fnb.order">
+        <field name="partner_id" ref="guest_amara"/><field name="product_villa_id" ref="villa_tirta"/>
+        <field name="reservation_id" ref="res_amara_inhouse"/>
+        <field name="placed">12:42</field><field name="state">kitchen</field>
+        <field name="note">No chilli in one portion, please.</field>
+    </record>
+    <record id="fnb_amara_l1" model="villa.fnb.order.line">
+        <field name="order_id" ref="fnb_amara"/><field name="product_id" ref="menu_prawns"/><field name="qty">2</field>
+    </record>
+    <record id="fnb_amara_l2" model="villa.fnb.order.line">
+        <field name="order_id" ref="fnb_amara"/><field name="product_id" ref="menu_wine"/><field name="qty">1</field>
+    </record>
+
+    <record id="fnb_tanaka" model="villa.fnb.order">
+        <field name="partner_id" ref="guest_tanaka"/><field name="product_villa_id" ref="villa_lotus"/>
+        <field name="reservation_id" ref="res_tanaka"/>
+        <field name="placed">12:55</field><field name="state">received</field>
+    </record>
+    <record id="fnb_tanaka_l1" model="villa.fnb.order.line">
+        <field name="order_id" ref="fnb_tanaka"/><field name="product_id" ref="menu_nasi_campur"/><field name="qty">2</field>
+    </record>
+
+    <record id="fnb_anya" model="villa.fnb.order">
+        <field name="partner_id" ref="guest_anya"/><field name="product_villa_id" ref="villa_surya"/>
+        <field name="reservation_id" ref="res_anya"/>
+        <field name="placed">12:15</field><field name="state">delivering</field>
+    </record>
+    <record id="fnb_anya_l1" model="villa.fnb.order.line">
+        <field name="order_id" ref="fnb_anya"/><field name="product_id" ref="menu_burger"/><field name="qty">3</field>
+    </record>
+    <record id="fnb_anya_l2" model="villa.fnb.order.line">
+        <field name="order_id" ref="fnb_anya"/><field name="product_id" ref="menu_children"/><field name="qty">2</field>
+    </record>
+
+    <record id="fnb_cole" model="villa.fnb.order">
+        <field name="partner_id" ref="guest_cole"/><field name="product_villa_id" ref="villa_chandra"/>
+        <field name="reservation_id" ref="res_cole"/>
+        <field name="placed">08:05</field><field name="state">billed</field>
+    </record>
+    <record id="fnb_cole_l1" model="villa.fnb.order.line">
+        <field name="order_id" ref="fnb_cole"/><field name="product_id" ref="menu_breakfast"/><field name="qty">2</field>
+    </record>
+
+</odoo>

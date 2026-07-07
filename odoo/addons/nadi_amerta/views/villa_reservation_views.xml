@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_villa_reservation_tree" model="ir.ui.view">
+        <field name="name">villa.reservation.tree</field>
+        <field name="model">villa.reservation</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="product_id"/>
+                <field name="check_in_date"/>
+                <field name="check_out_date"/>
+                <field name="nights"/>
+                <field name="guests"/>
+                <field name="source"/>
+                <field name="amount_total" widget="monetary"/>
+                <field name="amount_due" widget="monetary"/>
+                <field name="currency_id" column_invisible="1"/>
+                <field name="state" widget="badge"
+                       decoration-success="state in ('confirmed','checked_in')"
+                       decoration-muted="state == 'cancelled'"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_villa_reservation_form" model="ir.ui.view">
+        <field name="name">villa.reservation.form</field>
+        <field name="model">villa.reservation</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_confirm" type="object" string="Confirm"
+                            class="btn-primary" invisible="state != 'draft'"/>
+                    <button name="action_check_in" type="object" string="Check in"
+                            class="btn-primary" invisible="state != 'confirmed'"/>
+                    <button name="action_check_out" type="object" string="Check out"
+                            invisible="state != 'checked_in'"/>
+                    <button name="action_cancel" type="object" string="Cancel"
+                            invisible="state in ('cancelled','checked_out')"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,confirmed,checked_in,checked_out"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name" readonly="1"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="partner_id"/>
+                            <field name="product_id"/>
+                            <field name="guests"/>
+                            <field name="source"/>
+                            <field name="channel"/>
+                        </group>
+                        <group>
+                            <field name="check_in_date"/>
+                            <field name="check_out_date"/>
+                            <field name="nights"/>
+                            <field name="sale_order_id"/>
+                            <field name="amount_total" widget="monetary"/>
+                            <field name="amount_due" widget="monetary"/>
+                            <field name="currency_id" invisible="1"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Notes"><field name="notes"/></page>
+                        <page string="Housekeeping">
+                            <field name="housekeeping_task_ids"/>
+                        </page>
+                        <page string="Requests">
+                            <field name="request_ids"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_villa_reservation" model="ir.actions.act_window">
+        <field name="name">Reservations</field>
+        <field name="res_model">villa.reservation</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+</odoo>

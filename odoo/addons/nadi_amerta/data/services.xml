@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!-- Additional services (product.template, x_kind=service). list_price 0 = included. -->
+
+    <record id="svc_river_stone" model="product.template">
+        <field name="name">River Stone Ritual</field>
+        <field name="type">service</field>
+        <field name="categ_id" ref="product_category_service"/>
+        <field name="list_price">1850000</field>
+        <field name="x_kind">service</field>
+        <field name="x_slug">river-stone-ritual</field>
+        <field name="x_chapter">Wellness</field>
+        <field name="x_duration">120 min</field>
+        <field name="x_excerpt">Warm basalt from the Ayung, sandalwood oil, and four hands in the riverside pavilion.</field>
+    </record>
+
+    <record id="svc_sunrise_yoga" model="product.template">
+        <field name="name">Sunrise Yoga over the Gorge</field>
+        <field name="type">service</field>
+        <field name="categ_id" ref="product_category_service"/>
+        <field name="list_price">0</field>
+        <field name="x_kind">service</field>
+        <field name="x_slug">sunrise-yoga</field>
+        <field name="x_chapter">Wellness</field>
+        <field name="x_duration">75 min</field>
+        <field name="x_excerpt">Daily at 06:30 on the yoga deck. Included with every stay.</field>
+    </record>
+
+    <record id="svc_frangipani_bath" model="product.template">
+        <field name="name">Frangipani Flower Bath</field>
+        <field name="type">service</field>
+        <field name="categ_id" ref="product_category_service"/>
+        <field name="list_price">950000</field>
+        <field name="x_kind">service</field>
+        <field name="x_slug">frangipani-bath</field>
+        <field name="x_chapter">Wellness</field>
+        <field name="x_duration">60 min</field>
+        <field name="x_excerpt">A stone tub of warm water and five hundred blossoms, drawn at golden hour.</field>
+    </record>
+
+    <record id="svc_gorge_trek" model="product.template">
+        <field name="name">Hidden Gorge Trek &amp; Blessing</field>
+        <field name="type">service</field>
+        <field name="categ_id" ref="product_category_service"/>
+        <field name="list_price">1200000</field>
+        <field name="x_kind">service</field>
+        <field name="x_slug">gorge-trek</field>
+        <field name="x_chapter">Journeys</field>
+        <field name="x_duration">Half day</field>
+        <field name="x_excerpt">A guided descent to the river temple with our resident priest.</field>
+    </record>
+
+    <record id="svc_temple_ceremony" model="product.template">
+        <field name="name">Village Temple Ceremony</field>
+        <field name="type">service</field>
+        <field name="categ_id" ref="product_category_service"/>
+        <field name="list_price">850000</field>
+        <field name="x_kind">service</field>
+        <field name="x_slug">temple-ceremony</field>
+        <field name="x_chapter">Journeys</field>
+        <field name="x_duration">Evening</field>
+        <field name="x_excerpt">Join our banjar's odalan ceremony as an invited guest.</field>
+    </record>
+
+    <record id="svc_airport_transfer" model="product.template">
+        <field name="name">Private Airport Transfer</field>
+        <field name="type">service</field>
+        <field name="categ_id" ref="product_category_service"/>
+        <field name="list_price">650000</field>
+        <field name="x_kind">service</field>
+        <field name="x_slug">airport-transfer</field>
+        <field name="x_chapter">Journeys</field>
+        <field name="x_duration">90 min</field>
+        <field name="x_excerpt">Alphard from Ngurah Rai with cold towels and young coconut.</field>
+    </record>
+
+    <record id="svc_floating_breakfast" model="product.template">
+        <field name="name">Floating Breakfast</field>
+        <field name="type">service</field>
+        <field name="categ_id" ref="product_category_service"/>
+        <field name="list_price">750000</field>
+        <field name="x_kind">service</field>
+        <field name="x_slug">floating-breakfast</field>
+        <field name="x_chapter">Occasions</field>
+        <field name="x_duration">Morning</field>
+        <field name="x_excerpt">A carved teak tray in your pool, riverside fruit, and Kintamani coffee.</field>
+    </record>
+
+    <record id="svc_riverside_dinner" model="product.template">
+        <field name="name">Riverside Candlelight Dinner</field>
+        <field name="type">service</field>
+        <field name="categ_id" ref="product_category_service"/>
+        <field name="list_price">2400000</field>
+        <field name="x_kind">service</field>
+        <field name="x_slug">riverside-dinner</field>
+        <field name="x_chapter">Occasions</field>
+        <field name="x_duration">Evening</field>
+        <field name="x_excerpt">A private table on the river deck, five courses by Chef Ketut.</field>
+    </record>
+
+    <record id="svc_proposal" model="product.template">
+        <field name="name">The Proposal</field>
+        <field name="type">service</field>
+        <field name="categ_id" ref="product_category_service"/>
+        <field name="list_price">4500000</field>
+        <field name="x_kind">service</field>
+        <field name="x_slug">proposal</field>
+        <field name="x_chapter">Occasions</field>
+        <field name="x_duration">Bespoke</field>
+        <field name="x_excerpt">Flowers, musicians, a photographer, and a plan B for rain.</field>
+    </record>
+
+</odoo>

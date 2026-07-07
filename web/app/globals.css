@@ -1,0 +1,263 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+/* ==========================================================================
+   NADI AMERTA — "Tirta" design system (design/01-foundations.md)
+   Two surface worlds: ink-on-ivory (default) · ivory-on-forest (.theme-forest)
+   ========================================================================== */
+
+:root {
+  /* shadcn semantic tokens → brand values */
+  --background: #faf7f0;
+  --foreground: #2a2520;
+  --card: #ffffff;
+  --card-foreground: #2a2520;
+  --popover: #ffffff;
+  --popover-foreground: #2a2520;
+  --primary: #2e4a40;
+  --primary-foreground: #fdfbf7;
+  --secondary: #f4efe2;
+  --secondary-foreground: #2c4a52;
+  --muted: #eae3d3;
+  --muted-foreground: #8b8276;
+  --accent: #f4efe2;
+  --accent-foreground: #2c4a52;
+  --destructive: #a85842;
+  --destructive-foreground: #fdfbf7;
+  --border: #e5dfd0;
+  --input: #e5dfd0;
+  --ring: #2e4a40;
+  --radius: 0.5rem;
+  --chart-1: #2e4a40;
+  --chart-2: #c9a961;
+  --chart-3: #4a7080;
+  --chart-4: #a8b5a0;
+  --chart-5: #a85842;
+  --sidebar: #152825;
+  --sidebar-foreground: #faf7f0;
+  --sidebar-primary: #c9a961;
+  --sidebar-primary-foreground: #152825;
+  --sidebar-accent: rgba(255, 255, 255, 0.06);
+  --sidebar-accent-foreground: #faf7f0;
+  --sidebar-border: rgba(224, 201, 136, 0.18);
+  --sidebar-ring: #e0c988;
+}
+
+/* Dark surface world — forest sections, footer, ops sidebar */
+.theme-forest {
+  --background: #152825;
+  --foreground: #faf7f0;
+  --card: #1c332f;
+  --card-foreground: #faf7f0;
+  --popover: #1c332f;
+  --popover-foreground: #faf7f0;
+  --primary: #faf7f0;
+  --primary-foreground: #152825;
+  --secondary: rgba(255, 255, 255, 0.08);
+  --secondary-foreground: #faf7f0;
+  --muted: rgba(255, 255, 255, 0.08);
+  --muted-foreground: rgba(250, 247, 240, 0.6);
+  --accent: rgba(255, 255, 255, 0.08);
+  --accent-foreground: #faf7f0;
+  --border: rgba(224, 201, 136, 0.18);
+  --input: rgba(224, 201, 136, 0.24);
+  --ring: #e0c988;
+}
+
+@theme inline {
+  /* semantic (shadcn) */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  /* brand scales (design/01 §2.1) */
+  --color-ivory-50: #fdfbf7;
+  --color-ivory-100: #faf7f0;
+  --color-ivory-200: #f4efe2;
+  --color-sand-300: #eae3d3;
+  --color-sand-400: #d8cfbc;
+  --color-stone-400: #a69c8e;
+  --color-stone-500: #8b8276;
+  --color-stone-600: #6e665b;
+  --color-ink-700: #4a433d;
+  --color-ink-900: #2a2520;
+  --color-teal-700: #2c4a52;
+  --color-palm-600: #3e5c50;
+  --color-palm-700: #2e4a40;
+  --color-forest-900: #152825;
+  --color-forest-950: #0e1b19;
+  --color-sage-300: #a8b5a0;
+  --color-sage-500: #7a8b72;
+  --color-ocean-500: #4a7080;
+  --color-amerta-300: #e0c988;
+  --color-amerta-400: #c9a961;
+  --color-amerta-600: #a88a47;
+  --color-terracotta-100: #f3e2dc;
+  --color-terracotta-500: #a85842;
+
+  /* typography */
+  --font-display: var(--font-cormorant), ui-serif, Georgia, serif;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, monospace;
+
+  /* radius (design/01 §4) */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 20px;
+  --radius-arch: 999px 999px 12px 12px;
+
+  /* elevation */
+  --shadow-sm: 0 1px 2px rgba(42, 37, 32, 0.04), 0 1px 3px rgba(42, 37, 32, 0.06);
+  --shadow-md: 0 4px 6px rgba(42, 37, 32, 0.05), 0 10px 15px rgba(42, 37, 32, 0.08);
+  --shadow-lg: 0 10px 25px rgba(42, 37, 32, 0.1), 0 20px 40px rgba(42, 37, 32, 0.06);
+  --shadow-xl: 0 24px 60px rgba(21, 40, 37, 0.18);
+
+  /* motion (design/02 §1) */
+  --ease-water: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-drift: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-feature-settings: "cv11", "ss01";
+  }
+  ::selection {
+    background: #c9a961;
+    color: #152825;
+  }
+  h1, h2, h3 {
+    text-wrap: balance;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.15s !important;
+    }
+  }
+}
+
+@layer components {
+  /* Fluid display scale (design/01 §3.1) */
+  .text-display-xl {
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: clamp(3rem, 1.5rem + 6.5vw, 6.75rem);
+    line-height: 1.02;
+    letter-spacing: -0.01em;
+  }
+  .text-display-lg {
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: clamp(2.5rem, 1.75rem + 3.5vw, 4.5rem);
+    line-height: 1.05;
+    letter-spacing: -0.01em;
+  }
+  .text-display-md {
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: clamp(1.875rem, 1.4rem + 2vw, 3rem);
+    line-height: 1.1;
+  }
+  .text-display-sm {
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: clamp(1.5rem, 1.3rem + 0.8vw, 2rem);
+    line-height: 1.15;
+  }
+  .eyebrow {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: #a88a47;
+  }
+  .theme-forest .eyebrow,
+  .eyebrow-dark {
+    color: #a8b5a0;
+  }
+  .text-price {
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: 1.375rem;
+    line-height: 1.2;
+    font-feature-settings: "lnum";
+  }
+  /* Glass — only over photography (design/01 §4) */
+  .glass {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    box-shadow: var(--shadow-lg);
+  }
+  .glass-dark {
+    background: rgba(21, 40, 37, 0.45);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(250, 247, 240, 0.22);
+  }
+  /* Hero image overlay recipe (design/01 §5) */
+  .overlay-hero {
+    background: linear-gradient(
+      180deg,
+      rgba(14, 27, 25, 0.25) 0%,
+      rgba(14, 27, 25, 0.05) 40%,
+      rgba(14, 27, 25, 0.55) 100%
+    );
+  }
+  .container-na {
+    margin-inline: auto;
+    max-width: 1320px;
+    padding-inline: 1.5rem;
+  }
+  @media (min-width: 1024px) {
+    .container-na {
+      padding-inline: 3rem;
+    }
+  }
+  /* Gold hairline top accent — booking summary only (design/03 §5) */
+  .hairline-gold-top {
+    border-top: 1px solid rgba(201, 169, 97, 0.4);
+  }
+}

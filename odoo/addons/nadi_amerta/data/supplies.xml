@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!-- Housekeeping supplies (product.template, x_kind=supply). UC-HK2. -->
+
+    <record id="sup_towels" model="product.template">
+        <field name="name">Bath towels (white, 700gsm)</field>
+        <field name="type">consu</field>
+        <field name="list_price">0</field>
+        <field name="x_kind">supply</field>
+        <field name="x_category">Linen</field>
+        <field name="x_stock_qty">42</field>
+        <field name="x_min_stock">60</field>
+        <field name="x_stock_unit">pcs</field>
+        <field name="x_supplier">CV Bali Textile</field>
+    </record>
+
+    <record id="sup_linen" model="product.template">
+        <field name="name">King bed linen set</field>
+        <field name="type">consu</field>
+        <field name="x_kind">supply</field>
+        <field name="x_category">Linen</field>
+        <field name="x_stock_qty">28</field>
+        <field name="x_min_stock">24</field>
+        <field name="x_stock_unit">sets</field>
+        <field name="x_supplier">CV Bali Textile</field>
+    </record>
+
+    <record id="sup_amenity" model="product.template">
+        <field name="name">Frangipani amenity kit</field>
+        <field name="type">consu</field>
+        <field name="x_kind">supply</field>
+        <field name="x_category">Amenity</field>
+        <field name="x_stock_qty">55</field>
+        <field name="x_min_stock">40</field>
+        <field name="x_stock_unit">kits</field>
+        <field name="x_supplier">Utama Spice Bali</field>
+    </record>
+
+    <record id="sup_oil" model="product.template">
+        <field name="name">Sandalwood massage oil</field>
+        <field name="type">consu</field>
+        <field name="x_kind">supply</field>
+        <field name="x_category">Spa</field>
+        <field name="x_stock_qty">9</field>
+        <field name="x_min_stock">12</field>
+        <field name="x_stock_unit">L</field>
+        <field name="x_supplier">Utama Spice Bali</field>
+    </record>
+
+    <record id="sup_coffee" model="product.template">
+        <field name="name">Kintamani coffee beans</field>
+        <field name="type">consu</field>
+        <field name="x_kind">supply</field>
+        <field name="x_category">F&amp;B</field>
+        <field name="x_stock_qty">18</field>
+        <field name="x_min_stock">10</field>
+        <field name="x_stock_unit">kg</field>
+        <field name="x_supplier">Kintamani Coffee</field>
+    </record>
+
+    <record id="sup_chlorine" model="product.template">
+        <field name="name">Pool chlorine tablets</field>
+        <field name="type">consu</field>
+        <field name="x_kind">supply</field>
+        <field name="x_category">Operations</field>
+        <field name="x_stock_qty">31</field>
+        <field name="x_min_stock">20</field>
+        <field name="x_stock_unit">kg</field>
+        <field name="x_supplier">Pasar Badung Co-op</field>
+    </record>
+
+</odoo>

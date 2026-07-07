@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+
+    <!-- Reservation reference sequence (used by villa.reservation.create) -->
+    <record id="seq_villa_reservation" model="ir.sequence">
+        <field name="name">Villa Reservation</field>
+        <field name="code">villa.reservation</field>
+        <field name="prefix">NA-%(range_y)s%(range_month)s-</field>
+        <field name="padding">4</field>
+        <field name="number_increment">1</field>
+    </record>
+
+    <record id="seq_villa_fnb_order" model="ir.sequence">
+        <field name="name">Dining Order</field>
+        <field name="code">villa.fnb.order</field>
+        <field name="prefix">FNB-%(range_y)s%(range_month)s-</field>
+        <field name="padding">4</field>
+    </record>
+
+    <!-- Product category for villas -->
+    <record id="product_category_villa" model="product.category">
+        <field name="name">Villas</field>
+    </record>
+    <record id="product_category_service" model="product.category">
+        <field name="name">Guest Services</field>
+    </record>
+    <record id="product_category_fnb" model="product.category">
+        <field name="name">Food &amp; Beverage</field>
+    </record>
+
+</odoo>

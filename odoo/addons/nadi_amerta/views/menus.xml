@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <menuitem id="menu_nadi_root" name="Nadi Amerta" sequence="10"/>
+
+    <menuitem id="menu_nadi_reservations" name="Reservations"
+              parent="menu_nadi_root" action="action_villa_reservation"
+              sequence="10"/>
+
+    <menuitem id="menu_nadi_villas" name="Villas"
+              parent="menu_nadi_root" action="action_villas"
+              sequence="20"/>
+
+    <menuitem id="menu_nadi_housekeeping" name="Housekeeping"
+              parent="menu_nadi_root" action="action_hk_task"
+              sequence="30"/>
+
+    <menuitem id="menu_nadi_requests" name="Guest Requests"
+              parent="menu_nadi_root" action="action_guest_request"
+              sequence="40"/>
+
+</odoo>
