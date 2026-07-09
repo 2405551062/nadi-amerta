@@ -101,6 +101,9 @@ export interface CreateOrderInput {
   villaId?: number;
   items: { productId: number; qty: number }[];
   note?: string;
+  // Note 2 §4 — guest-chosen delivery timing.
+  timing?: "asap" | "scheduled";
+  scheduledTime?: string;
 }
 
 export async function createFnbOrder(input: CreateOrderInput): Promise<number> {
@@ -110,6 +113,8 @@ export async function createFnbOrder(input: CreateOrderInput): Promise<number> {
     partner_id: pid,
     product_villa_id: input.villaId || false,
     placed: now,
+    timing: input.timing === "scheduled" ? "scheduled" : "asap",
+    scheduled_time: input.timing === "scheduled" ? input.scheduledTime || false : false,
     note: input.note || false,
     line_ids: input.items.map((i) => [0, 0, { product_id: i.productId, qty: i.qty }]),
   });

@@ -52,12 +52,14 @@ export function ReceptionBoard({
   departures: departuresToday,
   requests: initialRequests,
   villas,
+  supplies = [],
 }: {
   arrivals: Reservation[];
   inHouse: Reservation[];
   departures: Reservation[];
   requests: GuestRequest[];
   villas: Villa[];
+  supplies?: { id: number; name: string }[];
 }) {
   const router = useRouter();
   const villaMap = new Map(villas.map((v) => [v.slug, v]));
@@ -66,6 +68,8 @@ export function ReceptionBoard({
   const [checkedIn, setCheckedIn] = useState<number[]>([]);
   const [checkedOut, setCheckedOut] = useState<number[]>([]);
   const [requests, setRequests] = useState(initialRequests);
+  // Note #4 — per-request supply draw-down chosen at resolve time.
+  const [supplyPick, setSupplyPick] = useState<Record<number, { productId: number; qty: number }>>({});
   const [newOpen, setNewOpen] = useState(false);
   const [creating, setCreating] = useState(false);
 
@@ -105,14 +109,35 @@ export function ReceptionBoard({
   const advanceRequest = async (id: number) => {
     const req = requests.find((r) => r.id === id);
     const action = req?.state === "open" ? "take" : "resolve";
+    // Note 2 §3 — complaints are never settled from inventory; only requests draw supply.
+    const pick = action === "resolve" && req?.type === "request" ? supplyPick[id] : undefined;
     setRequests((rs) =>
       rs.map((r) => (r.id === id ? { ...r, state: action === "take" ? "in_progress" : "resolved" } : r))
     );
     await fetch(`/api/requests/${id}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action }),
+      body: JSON.stringify({
+        action,
+        supplyProductId: pick?.productId,
+        supplyQty: pick?.qty,
+      }),
     }).catch(() => {});
+    router.refresh();
+  };
+
+  // Note 2 §3 — route a complaint (e.g. "the AC is broken") to engineering.
+  // Flags the villa for maintenance; does NOT touch inventory.
+  const sendToEngineering = async (id: number) => {
+    setRequests((rs) =>
+      rs.map((r) => (r.id === id ? { ...r, state: "in_progress", maintenanceFlagged: true } : r))
+    );
+    await fetch(`/api/requests/${id}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "maintenance" }),
+    }).catch(() => {});
+    toast("Sent to engineering", { description: "Villa flagged for maintenance." });
     router.refresh();
   };
 
@@ -403,8 +428,63 @@ export function ReceptionBoard({
                   {r.villa} · {r.guestName} · {r.created} · {r.priority} priority
                 </p>
               </div>
-              <div className="flex items-center gap-3">
+              <div className="flex flex-wrap items-center gap-2">
                 <StatusBadge status={r.state} />
+                {r.maintenanceFlagged && (
+                  <span className="rounded-full bg-terracotta-100 px-2.5 py-1 text-[11px] font-semibold text-terracotta-500">
+                    Engineering
+                  </span>
+                )}
+                {/* Note 2 §3 — complaints route to engineering, never inventory. */}
+                {r.type === "complaint" && r.state !== "resolved" && !r.maintenanceFlagged && (
+                  <button
+                    onClick={() => sendToEngineering(r.id)}
+                    className="flex h-8 items-center gap-1.5 rounded-md border border-terracotta-500/50 px-3 text-xs font-medium text-terracotta-500 transition-colors hover:bg-terracotta-100/40"
+                  >
+                    <ShieldAlert className="size-3.5" aria-hidden />
+                    Send to engineering
+                  </button>
+                )}
+                {r.type === "request" && r.state === "in_progress" && supplies.length > 0 && (
+                  <>
+                    <select
+                      value={supplyPick[r.id]?.productId ?? ""}
+                      onChange={(e) => {
+                        const productId = Number(e.target.value);
+                        setSupplyPick((s) => {
+                          const next = { ...s };
+                          if (productId) next[r.id] = { productId, qty: s[r.id]?.qty || 1 };
+                          else delete next[r.id];
+                          return next;
+                        });
+                      }}
+                      title="Draw a supply from inventory when resolving"
+                      className="h-8 rounded-md border border-sand-400 bg-white px-2 text-xs text-ink-700"
+                    >
+                      <option value="">No supply</option>
+                      {supplies.map((s) => (
+                        <option key={s.id} value={s.id}>
+                          {s.name}
+                        </option>
+                      ))}
+                    </select>
+                    {supplyPick[r.id]?.productId ? (
+                      <input
+                        type="number"
+                        min={1}
+                        value={supplyPick[r.id]?.qty || 1}
+                        onChange={(e) =>
+                          setSupplyPick((s) => ({
+                            ...s,
+                            [r.id]: { productId: s[r.id]!.productId, qty: Math.max(1, Number(e.target.value) || 1) },
+                          }))
+                        }
+                        aria-label="Quantity"
+                        className="h-8 w-14 rounded-md border border-sand-400 bg-white px-2 text-xs text-ink-700"
+                      />
+                    ) : null}
+                  </>
+                )}
                 {r.state !== "resolved" && (
                   <button
                     onClick={() => advanceRequest(r.id)}

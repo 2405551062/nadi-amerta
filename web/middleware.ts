@@ -15,7 +15,17 @@ const COOKIE = "na_session";
 
 interface SessionClaims {
   role?: "guest" | "staff";
+  groups?: string[];
 }
+
+// Note #6 — each ops console requires a specific Nadi role group.
+const OPS_ROLE: [string, string][] = [
+  ["/ops/reception", "Front Office"],
+  ["/ops/housekeeping", "Housekeeping"], // also covers /ops/housekeeping/inventory
+  ["/ops/fnb", "Food & Beverage"],
+  ["/ops/finance", "Finance"],
+  ["/ops/backoffice", "Back Office"],
+];
 
 async function readSession(req: NextRequest): Promise<SessionClaims | null> {
   const token = req.cookies.get(COOKIE)?.value;
@@ -40,6 +50,20 @@ export async function middleware(req: NextRequest) {
     url.pathname = "/staff-login";
     url.searchParams.set("next", pathname);
     return NextResponse.redirect(url);
+  }
+
+  // Note #6 — a signed-in staffer may only open the consoles their role allows.
+  // GM (all groups) sees everything; unknown/empty groups fall through (dev safety).
+  if (needsStaff && !isApi && session?.role === "staff") {
+    const groups = session.groups ?? [];
+    if (groups.length && !groups.includes("General Manager")) {
+      const match = OPS_ROLE.find(([p]) => pathname.startsWith(p));
+      if (match && !groups.includes(match[1])) {
+        const url = req.nextUrl.clone();
+        url.pathname = "/ops"; // bounce to their dashboard
+        return NextResponse.redirect(url);
+      }
+    }
   }
   if (pathname.startsWith("/portal") && !session) {
     const url = req.nextUrl.clone();

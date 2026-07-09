@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!-- Note #7 + #1/#2 — generate invoices in the background so bookings stay
+         fast. Runs every 2 minutes; each run invoices a small batch. -->
+    <record id="cron_generate_invoices" model="ir.cron">
+        <field name="name">Nadi Amerta: generate reservation invoices</field>
+        <field name="model_id" ref="model_villa_reservation"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_generate_invoices()</field>
+        <field name="interval_number">2</field>
+        <field name="interval_type">minutes</field>
+        <field name="numbercall">-1</field>
+        <field name="active" eval="True"/>
+    </record>
+</odoo>

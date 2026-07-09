@@ -30,13 +30,15 @@ interface OdooVilla {
   x_availability: VillaStatus | false;
   x_excerpt: string | false;
   x_facilities: string | false;
+  x_total_rooms: number;
+  x_rooms_available_now: number;
   list_price: number;
 }
 
 const VILLA_FIELDS = [
   "name", "x_slug", "x_villa_type", "x_view", "x_bedrooms", "x_capacity",
   "x_size_m2", "x_min_stay", "x_availability", "x_excerpt", "x_facilities",
-  "list_price",
+  "x_total_rooms", "x_rooms_available_now", "list_price",
 ];
 
 /** Merge an Odoo villa with its presentation assets from the mock (by slug). */
@@ -54,6 +56,8 @@ function toVilla(o: OdooVilla): Villa {
     sizeM2: o.x_size_m2,
     priceNight: Math.round(o.list_price),
     status: (o.x_availability || "available") as VillaStatus,
+    roomsTotal: o.x_total_rooms || 1,
+    roomsAvailableNow: o.x_rooms_available_now ?? o.x_total_rooms ?? 1,
     minStay: o.x_min_stay || 2,
     excerpt: o.x_excerpt || preset?.excerpt || "",
     facilities: o.x_facilities

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!-- Note #6 — one staff account per job position. Each is an internal user
+         (base.group_user) plus the matching Nadi Amerta role group, so signing in
+         at /staff-login as any of these shows exactly that job's consoles.
+         Demo credentials: login = the email below, password = the same as login. -->
+
+    <record id="user_front_office" model="res.users">
+        <field name="name">Kadek Front Office</field>
+        <field name="login">frontoffice@nadiamerta.local</field>
+        <field name="password">frontoffice@nadiamerta.local</field>
+        <field name="x_job_title">Front Office Agent</field>
+        <field name="groups_id" eval="[(4, ref('base.group_user')), (4, ref('nadi_amerta.group_nadi_front_office'))]"/>
+    </record>
+
+    <record id="user_housekeeper" model="res.users">
+        <field name="name">Wayan Housekeeping</field>
+        <field name="login">housekeeper@nadiamerta.local</field>
+        <field name="password">housekeeper@nadiamerta.local</field>
+        <field name="x_job_title">Housekeeper</field>
+        <field name="groups_id" eval="[(4, ref('base.group_user')), (4, ref('nadi_amerta.group_nadi_housekeeping'))]"/>
+    </record>
+
+    <record id="user_fnb" model="res.users">
+        <field name="name">Made Kitchen</field>
+        <field name="login">fnb@nadiamerta.local</field>
+        <field name="password">fnb@nadiamerta.local</field>
+        <field name="x_job_title">F&amp;B / Kitchen</field>
+        <field name="groups_id" eval="[(4, ref('base.group_user')), (4, ref('nadi_amerta.group_nadi_fnb'))]"/>
+    </record>
+
+    <record id="user_finance" model="res.users">
+        <field name="name">Nyoman Finance</field>
+        <field name="login">finance@nadiamerta.local</field>
+        <field name="password">finance@nadiamerta.local</field>
+        <field name="x_job_title">Finance Officer</field>
+        <field name="groups_id" eval="[(4, ref('base.group_user')), (4, ref('nadi_amerta.group_nadi_finance'))]"/>
+    </record>
+
+    <record id="user_back_office" model="res.users">
+        <field name="name">Ketut Back Office</field>
+        <field name="login">backoffice@nadiamerta.local</field>
+        <field name="password">backoffice@nadiamerta.local</field>
+        <field name="x_job_title">Back Office / Reporting</field>
+        <field name="groups_id" eval="[(4, ref('base.group_user')), (4, ref('nadi_amerta.group_nadi_back_office'))]"/>
+    </record>
+
+    <record id="user_manager" model="res.users">
+        <field name="name">Gede General Manager</field>
+        <field name="login">manager@nadiamerta.local</field>
+        <field name="password">manager@nadiamerta.local</field>
+        <field name="x_job_title">General Manager</field>
+        <field name="groups_id" eval="[(4, ref('base.group_user')), (4, ref('nadi_amerta.group_nadi_manager'))]"/>
+    </record>
+
+</odoo>

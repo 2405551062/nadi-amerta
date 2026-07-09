@@ -13,21 +13,28 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { LogoutButton } from "@/components/auth/logout-button";
 
 /**
- * Staff console sidebar — design/03 §7. One nav per RBAC role in production
- * (ERD res.groups); the demo shows all consoles.
+ * Staff console sidebar — design/03 §7. Role-aware (Note #6): each nav item
+ * carries the Nadi res.group that grants it; a signed-in staffer only sees the
+ * consoles their groups allow. General Manager (all groups) sees everything.
  */
 const NAV = [
-  { href: "/ops", label: "Dashboard", icon: LayoutDashboard, exact: true, role: "GM" },
+  { href: "/ops", label: "Dashboard", icon: LayoutDashboard, exact: true, role: "*" },
   { href: "/ops/reception", label: "Reception", icon: CalendarDays, role: "Front Office" },
   { href: "/ops/housekeeping", label: "Housekeeping", icon: Sparkles, exact: true, role: "Housekeeping" },
   { href: "/ops/housekeeping/inventory", label: "Inventory", icon: Archive, role: "Housekeeping" },
-  { href: "/ops/fnb", label: "F&B Kitchen", icon: ChefHat, role: "F&B" },
+  { href: "/ops/fnb", label: "F&B Kitchen", icon: ChefHat, role: "Food & Beverage" },
   { href: "/ops/finance", label: "Finance", icon: Wallet, role: "Finance" },
   { href: "/ops/backoffice", label: "Back Office", icon: BarChart3, role: "Back Office" },
 ];
 
-export function OpsSidebar({ user }: { user?: { name: string; role: string } }) {
+export function OpsSidebar({ user }: { user?: { name: string; role: string; groups?: string[] } }) {
   const pathname = usePathname();
+  const groups = user?.groups ?? [];
+  const isGM = groups.includes("General Manager");
+  // No group info → show everything (safe fallback); otherwise filter by role.
+  const nav = NAV.filter(
+    (item) => item.role === "*" || isGM || groups.length === 0 || groups.includes(item.role)
+  );
 
   return (
     <aside className="theme-forest flex w-16 shrink-0 flex-col border-r border-amerta-300/15 bg-forest-900 lg:w-64">
@@ -39,7 +46,7 @@ export function OpsSidebar({ user }: { user?: { name: string; role: string } }) 
       </Link>
 
       <nav className="flex-1 space-y-1 px-2 lg:px-3" aria-label="Operations">
-        {NAV.map((item) => {
+        {nav.map((item) => {
           const active = item.exact ? pathname === item.href : pathname.startsWith(item.href);
           const Icon = item.icon;
           return (

@@ -69,6 +69,23 @@ export function VillaCard({
             {villa.bedrooms} {villa.bedrooms === 1 ? "Bedroom" : "Bedrooms"} · {villa.sizeM2}m² ·{" "}
             {VIEW_LABEL[villa.view]}
           </p>
+          {villa.roomsTotal ? (
+            <p
+              className={`mt-1.5 flex items-center gap-1.5 text-[13px] font-medium ${
+                (villa.roomsAvailableNow ?? 0) > 0 ? "text-palm-700" : "text-terracotta-500"
+              }`}
+            >
+              <span
+                aria-hidden
+                className={`size-1.5 rounded-full ${
+                  (villa.roomsAvailableNow ?? 0) > 0 ? "bg-palm-600" : "bg-terracotta-500"
+                }`}
+              />
+              {(villa.roomsAvailableNow ?? 0) > 0
+                ? `${villa.roomsAvailableNow} of ${villa.roomsTotal} rooms available`
+                : "Fully booked today"}
+            </p>
+          ) : null}
           <div className="mt-auto flex items-end justify-between pt-5">
             <p className="text-teal-700">
               <span className="text-price">{idr(villa.priceNight)}</span>

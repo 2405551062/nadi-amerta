@@ -6,9 +6,14 @@ over JSON-RPC. On successful verify, the guest's res.partner is found or created
 and its id returned, so the session binds to a real partner.
 """
 import random
+import re
 from datetime import datetime, timedelta
 
 from odoo import api, fields, models
+
+# Note #8 — reject clearly invalid addresses before issuing a code.
+# Requires a plausible domain with a dot and a 2+ char TLD (rejects "a@b", "x@y.z1").
+EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[a-z]{2,}$")
 
 
 class VillaOtp(models.Model):
@@ -27,6 +32,8 @@ class VillaOtp(models.Model):
         email = (email or "").strip().lower()
         if not email:
             return {"ok": False, "error": "email required"}
+        if not EMAIL_RE.match(email):
+            return {"ok": False, "error": "Please enter a valid email address."}
         code = "%06d" % random.randint(0, 999999)
         self.create({
             "email": email,

@@ -11,6 +11,8 @@
         <field name="x_slug">river-stone-ritual</field>
         <field name="x_chapter">Wellness</field>
         <field name="x_duration">120 min</field>
+        <field name="x_service_time">10:00, 14:00, 16:30</field>
+        <field name="x_service_location">Riverside spa pavilion</field>
         <field name="x_excerpt">Warm basalt from the Ayung, sandalwood oil, and four hands in the riverside pavilion.</field>
     </record>
 
@@ -23,6 +25,8 @@
         <field name="x_slug">sunrise-yoga</field>
         <field name="x_chapter">Wellness</field>
         <field name="x_duration">75 min</field>
+        <field name="x_service_time">06:30</field>
+        <field name="x_service_location">Yoga deck over the gorge</field>
         <field name="x_excerpt">Daily at 06:30 on the yoga deck. Included with every stay.</field>
     </record>
 
@@ -35,6 +39,8 @@
         <field name="x_slug">frangipani-bath</field>
         <field name="x_chapter">Wellness</field>
         <field name="x_duration">60 min</field>
+        <field name="x_service_time">16:30, 17:30</field>
+        <field name="x_service_location">In your villa bathroom</field>
         <field name="x_excerpt">A stone tub of warm water and five hundred blossoms, drawn at golden hour.</field>
     </record>
 
@@ -47,6 +53,8 @@
         <field name="x_slug">gorge-trek</field>
         <field name="x_chapter">Journeys</field>
         <field name="x_duration">Half day</field>
+        <field name="x_service_time">07:00</field>
+        <field name="x_service_location">Meet at the riverbank gate</field>
         <field name="x_excerpt">A guided descent to the river temple with our resident priest.</field>
     </record>
 
@@ -59,6 +67,8 @@
         <field name="x_slug">temple-ceremony</field>
         <field name="x_chapter">Journeys</field>
         <field name="x_duration">Evening</field>
+        <field name="x_service_time">18:00</field>
+        <field name="x_service_location">Pengosekan village temple</field>
         <field name="x_excerpt">Join our banjar's odalan ceremony as an invited guest.</field>
     </record>
 
@@ -71,6 +81,8 @@
         <field name="x_slug">airport-transfer</field>
         <field name="x_chapter">Journeys</field>
         <field name="x_duration">90 min</field>
+        <field name="x_service_time">On request</field>
+        <field name="x_service_location">Ngurah Rai airport pickup</field>
         <field name="x_excerpt">Alphard from Ngurah Rai with cold towels and young coconut.</field>
     </record>
 
@@ -83,6 +95,8 @@
         <field name="x_slug">floating-breakfast</field>
         <field name="x_chapter">Occasions</field>
         <field name="x_duration">Morning</field>
+        <field name="x_service_time">07:30, 08:30</field>
+        <field name="x_service_location">In your private pool</field>
         <field name="x_excerpt">A carved teak tray in your pool, riverside fruit, and Kintamani coffee.</field>
     </record>
 
@@ -95,6 +109,8 @@
         <field name="x_slug">riverside-dinner</field>
         <field name="x_chapter">Occasions</field>
         <field name="x_duration">Evening</field>
+        <field name="x_service_time">19:00</field>
+        <field name="x_service_location">Private table on the river deck</field>
         <field name="x_excerpt">A private table on the river deck, five courses by Chef Ketut.</field>
     </record>
 
@@ -107,6 +123,8 @@
         <field name="x_slug">proposal</field>
         <field name="x_chapter">Occasions</field>
         <field name="x_duration">Bespoke</field>
+        <field name="x_service_time">17:00, 18:00</field>
+        <field name="x_service_location">Sunset point, arranged privately</field>
         <field name="x_excerpt">Flowers, musicians, a photographer, and a plan B for rain.</field>
     </record>
 

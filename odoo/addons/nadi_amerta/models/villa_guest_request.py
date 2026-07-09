@@ -35,6 +35,36 @@ class VillaGuestRequest(models.Model):
     )
     assignee_id = fields.Many2one("res.users", string="Handled by")
 
+    # Note #4 — a request may consume a housekeeping supply once resolved
+    # (e.g. "extra yoga mats" draws down the yoga-mat stock).
+    supply_product_id = fields.Many2one(
+        "product.template", string="Consumes supply",
+        domain=[("x_kind", "=", "supply")],
+        help="If set, resolving this request draws this item down from inventory.",
+    )
+    supply_qty = fields.Integer(string="Quantity", default=1)
+    supply_applied = fields.Boolean(string="Stock drawn", default=False, copy=False)
+
+    # Note 2 §3 — how the ticket is resolved. Inventory requests draw a supply
+    # down from stock; maintenance complaints (e.g. "the AC is broken") are
+    # routed to engineering and the villa is flagged for maintenance instead —
+    # they are NEVER settled from inventory.
+    resolution_route = fields.Selection(
+        [("inventory", "Inventory"), ("maintenance", "Maintenance / engineering"), ("none", "Information only")],
+        string="Resolution route", compute="_compute_resolution_route", store=True,
+    )
+    maintenance_flagged = fields.Boolean(string="Sent to engineering", default=False, copy=False)
+
+    @api.depends("request_type", "supply_product_id")
+    def _compute_resolution_route(self):
+        for r in self:
+            if r.request_type == "complaint":
+                r.resolution_route = "maintenance"
+            elif r.supply_product_id:
+                r.resolution_route = "inventory"
+            else:
+                r.resolution_route = "none"
+
     def _email(self, subject, line):
         for r in self:
             if not r.partner_id.email:
@@ -62,8 +92,37 @@ class VillaGuestRequest(models.Model):
     def action_take(self):
         self.write({"state": "in_progress", "assignee_id": self.env.user.id})
 
+    def action_flag_maintenance(self):
+        """Note 2 §3 — route a complaint to engineering: flag the ticket and put
+        the villa into maintenance status. Never touches inventory."""
+        for r in self:
+            r.maintenance_flagged = True
+            r.state = "in_progress"
+            if not r.assignee_id:
+                r.assignee_id = self.env.user.id
+            if r.product_id:
+                r.product_id.x_availability = "maintenance"
+                r.product_id.message_post(
+                    body="Maintenance raised from guest complaint: %s" % (r.name or "")
+                )
+        return True
+
     def action_resolve(self):
         self.write({"state": "resolved"})
         for r in self:
+            # Note 2 §3 — only inventory-type requests draw stock. Complaints
+            # (maintenance route) are resolved by engineering, never from stock.
+            is_inventory = r.request_type == "request"
+            if is_inventory and r.supply_product_id and r.supply_qty and not r.supply_applied:
+                r.supply_product_id.apply_stock_move(
+                    -abs(r.supply_qty), reason="consume",
+                    note="Guest request: %s" % r.name,
+                )
+                r.supply_applied = True
+            # A resolved maintenance complaint clears the villa back to cleaning
+            # (housekeeping re-inspects before it returns to sale).
+            if r.request_type == "complaint" and r.maintenance_flagged and r.product_id:
+                if r.product_id.x_availability == "maintenance":
+                    r.product_id.x_availability = "cleaning"
             r._email("Your request has been resolved",
                      "Your request &ldquo;%s&rdquo; has been resolved. Please let us know if there's anything more." % r.name)

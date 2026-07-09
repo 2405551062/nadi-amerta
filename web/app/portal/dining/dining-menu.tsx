@@ -29,6 +29,9 @@ export function DiningMenu({
   const [category, setCategory] = useState("All");
   const [cart, setCart] = useState<Record<number, number>>({});
   const [timing, setTiming] = useState<"asap" | "slot">("asap");
+  // Note 2 §4 — the guest picks an exact delivery time.
+  const [scheduledTime, setScheduledTime] = useState("19:00");
+  const [note, setNote] = useState("");
   const [open, setOpen] = useState(false);
   const [ordered, setOrdered] = useState(false);
 
@@ -59,19 +62,27 @@ export function DiningMenu({
   const placeOrder = async () => {
     setOrdered(true);
     try {
-      // Create a villa.fnb.order in Odoo, charged to the folio (B15).
+      // Create a villa.fnb.order in Odoo, charged to the folio (B15). Note 2 §4 —
+      // carries the guest's chosen timing; the order is invoiced to their folio.
       await fetch("/api/dining/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           villaId,
           items: Object.entries(cart).map(([id, qty]) => ({ productId: Number(id), qty })),
+          timing: timing === "slot" ? "scheduled" : "asap",
+          scheduledTime: timing === "slot" ? scheduledTime : undefined,
+          note: note || undefined,
         }),
       });
       setOpen(false);
       setCart({});
+      setNote("");
       toast("Order received", {
-        description: `The kitchen has it — about 35 minutes to ${villaLabel}.`,
+        description:
+          timing === "slot"
+            ? `Scheduled for ${scheduledTime} to ${villaLabel} · added to your folio.`
+            : `The kitchen has it — about 35 minutes to ${villaLabel} · added to your folio.`,
       });
     } catch {
       toast("Could not place the order — please try again.");
@@ -207,8 +218,20 @@ export function DiningMenu({
                 <label className="flex items-center gap-3 rounded-md border border-border p-3 text-sm">
                   <RadioGroupItem value="asap" /> As soon as ready (~35 min)
                 </label>
-                <label className="flex items-center gap-3 rounded-md border border-border p-3 text-sm">
-                  <RadioGroupItem value="slot" /> Schedule — tonight 19:00
+                <label className="flex items-center justify-between gap-3 rounded-md border border-border p-3 text-sm">
+                  <span className="flex items-center gap-3">
+                    <RadioGroupItem value="slot" /> Schedule for a time
+                  </span>
+                  <input
+                    type="time"
+                    value={scheduledTime}
+                    onChange={(e) => {
+                      setScheduledTime(e.target.value);
+                      setTiming("slot");
+                    }}
+                    className="h-8 rounded-md border border-sand-400 bg-white px-2 font-mono text-[13px] text-ink-700"
+                    aria-label="Delivery time"
+                  />
                 </label>
               </RadioGroup>
             </div>
@@ -217,7 +240,14 @@ export function DiningMenu({
               <Label htmlFor="dining-note" className="text-xs tracking-[0.1em] text-stone-500 uppercase">
                 Allergies & notes
               </Label>
-              <Textarea id="dining-note" rows={2} className="mt-2 bg-white" placeholder="No chilli, extra sambal, candles…" />
+              <Textarea
+                id="dining-note"
+                rows={2}
+                value={note}
+                onChange={(e) => setNote(e.target.value)}
+                className="mt-2 bg-white"
+                placeholder="No chilli, extra sambal, candles…"
+              />
             </div>
 
             <button

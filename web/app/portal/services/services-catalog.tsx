@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { CalendarClock, Trash2 } from "lucide-react";
+import { CalendarClock, MapPin, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import {
   Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle,
@@ -17,41 +17,63 @@ import { cn } from "@/lib/utils";
 import { EASE_WATER } from "@/components/motion";
 
 const CHAPTERS = ["Wellness", "Journeys", "Occasions"] as const;
-const DATES = ["Aug 12", "Aug 13", "Aug 14", "Aug 15"];
-const SLOTS = ["08:00", "10:30", "15:00", "17:30"];
 
+interface StayDay {
+  iso: string;
+  label: string;
+}
 interface PlannedItem {
   service: Service;
-  date: string;
+  day: StayDay;
   slot: string;
 }
 
-/** Catalog + detail sheet + "Planned for your stay" itinerary rail (design/06 §5). */
-export function ServicesCatalog({ services }: { services: Service[] }) {
+/** Catalog + detail sheet + "Planned for your stay" itinerary rail (design/06 §5).
+ *  Note 2 §5 — the guest picks a real day of their stay; the villa fixes the
+ *  realistic start time (service.times) and tells them where it happens. */
+export function ServicesCatalog({
+  services,
+  days,
+  villaLabel,
+}: {
+  services: Service[];
+  days: StayDay[];
+  villaLabel: string;
+}) {
   const [selected, setSelected] = useState<Service | null>(null);
-  const [date, setDate] = useState(DATES[0]);
-  const [slot, setSlot] = useState(SLOTS[1]);
+  const [dayIso, setDayIso] = useState(days[0]?.iso ?? "");
+  const [slot, setSlot] = useState("");
   const [billing, setBilling] = useState<"folio" | "now">("folio");
+  const [notes, setNotes] = useState("");
   const [planned, setPlanned] = useState<PlannedItem[]>([]);
   const [saving, setSaving] = useState(false);
 
+  // The realistic times the villa offers for this service (single = fixed daily).
+  const timesFor = (s: Service) => (s.times && s.times.length ? s.times : ["On request"]);
+
+  const openService = (s: Service) => {
+    setSelected(s);
+    setSlot(timesFor(s)[0]);
+    setDayIso(days[0]?.iso ?? "");
+    setBilling("folio");
+    setNotes("");
+  };
+
   const add = async () => {
     if (!selected) return;
+    const day = days.find((d) => d.iso === dayIso) ?? days[0];
     setSaving(true);
     try {
-      // Persist as a villa.service.booking in Odoo (B9).
+      // Persist as a villa.service.booking in Odoo (B9). billing "now" =
+      // pay with Midtrans → the model outputs an invoice immediately (Note 2 §5).
       await fetch("/api/services/book", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ serviceId: selected.id, date, slot, billing }),
+        body: JSON.stringify({ serviceId: selected.id, date: dayIso, slot, billing, notes }),
       });
-      setPlanned((p) =>
-        [...p, { service: selected, date, slot }].sort(
-          (a, b) => DATES.indexOf(a.date) - DATES.indexOf(b.date)
-        )
-      );
+      if (day) setPlanned((p) => [...p, { service: selected, day, slot }]);
       toast(`${selected.name} planned`, {
-        description: `${date} · ${slot} · ${billing === "folio" ? "charged to villa folio" : "paid now"}`,
+        description: `${day?.label ?? ""} · ${slot} · ${billing === "folio" ? "charged to villa folio" : "paid now via Midtrans"}`,
       });
       setSelected(null);
     } catch {
@@ -75,7 +97,7 @@ export function ServicesCatalog({ services }: { services: Service[] }) {
                 .map((s) => (
                   <button
                     key={s.id}
-                    onClick={() => setSelected(s)}
+                    onClick={() => openService(s)}
                     className="group flex h-full flex-col overflow-hidden rounded-lg bg-card text-left shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
                   >
                     <div className="relative aspect-[3/2] overflow-hidden">
@@ -92,6 +114,18 @@ export function ServicesCatalog({ services }: { services: Service[] }) {
                       <p className="mt-1 flex-1 text-[13px] leading-snug text-stone-500">
                         {s.description.split(".")[0]}.
                       </p>
+                      {(s.times?.length || s.location) && (
+                        <p className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[12px] text-stone-500">
+                          {s.times?.length ? (
+                            <span className="font-mono text-teal-700">{s.times.join(" · ")}</span>
+                          ) : null}
+                          {s.location ? (
+                            <span className="inline-flex items-center gap-1">
+                              <MapPin className="size-3" aria-hidden /> {s.location}
+                            </span>
+                          ) : null}
+                        </p>
+                      )}
                       <p className="mt-3 text-[13px] text-ink-700">
                         <span className="text-stone-500">{s.duration} · </span>
                         <span className="font-medium text-amerta-600">
@@ -110,7 +144,7 @@ export function ServicesCatalog({ services }: { services: Service[] }) {
       <aside className="lg:col-span-4">
         <div className="rounded-lg bg-card p-6 shadow-sm lg:sticky lg:top-24">
           <p className="eyebrow">Planned for your stay</p>
-          <h2 className="text-display-sm mt-3 text-teal-700">Villa Tirta · August</h2>
+          <h2 className="text-display-sm mt-3 text-teal-700">{villaLabel}</h2>
           {planned.length === 0 ? (
             <p className="mt-5 flex items-start gap-3 text-sm leading-relaxed text-stone-500">
               <CalendarClock className="mt-0.5 size-4 shrink-0" aria-hidden />
@@ -132,7 +166,7 @@ export function ServicesCatalog({ services }: { services: Service[] }) {
                     <div>
                       <p className="text-sm font-medium text-ink-900">{p.service.name}</p>
                       <p className="text-xs text-stone-500">
-                        {p.date} · {p.slot} ·{" "}
+                        {p.day.label} · {p.slot} ·{" "}
                         {p.service.price === 0 ? "Included" : idr(p.service.price)}
                       </p>
                     </div>
@@ -156,7 +190,7 @@ export function ServicesCatalog({ services }: { services: Service[] }) {
         </div>
       </aside>
 
-      {/* Detail sheet — slot picker + billing choice */}
+      {/* Detail sheet — day picker + villa-fixed time + billing choice */}
       <Sheet open={!!selected} onOpenChange={(o) => !o && setSelected(null)}>
         <SheetContent className="w-full overflow-y-auto sm:max-w-[440px]">
           {selected && (
@@ -180,22 +214,28 @@ export function ServicesCatalog({ services }: { services: Service[] }) {
               </SheetHeader>
 
               <div className="space-y-6 px-4 pb-8">
+                {selected.location && (
+                  <p className="flex items-center gap-2 text-sm text-ink-700">
+                    <MapPin className="size-4 text-amerta-600" aria-hidden /> {selected.location}
+                  </p>
+                )}
+
                 <div>
                   <Label className="text-xs tracking-[0.1em] text-stone-500 uppercase">Day</Label>
                   <div className="mt-2 flex flex-wrap gap-2" role="group" aria-label="Choose a day">
-                    {DATES.map((d) => (
+                    {days.map((d) => (
                       <button
-                        key={d}
-                        onClick={() => setDate(d)}
-                        aria-pressed={date === d}
+                        key={d.iso}
+                        onClick={() => setDayIso(d.iso)}
+                        aria-pressed={dayIso === d.iso}
                         className={cn(
                           "h-9 rounded-full border px-4 text-[13px] font-medium transition-colors",
-                          date === d
+                          dayIso === d.iso
                             ? "border-palm-700 bg-palm-700 text-ivory-50"
                             : "border-sand-400 text-ink-700 hover:border-palm-700"
                         )}
                       >
-                        {d}
+                        {d.label}
                       </button>
                     ))}
                   </div>
@@ -203,9 +243,11 @@ export function ServicesCatalog({ services }: { services: Service[] }) {
                 </div>
 
                 <div>
-                  <Label className="text-xs tracking-[0.1em] text-stone-500 uppercase">Time</Label>
+                  <Label className="text-xs tracking-[0.1em] text-stone-500 uppercase">
+                    Time {timesFor(selected).length === 1 ? "(villa-fixed)" : ""}
+                  </Label>
                   <div className="mt-2 flex flex-wrap gap-2" role="group" aria-label="Choose a time">
-                    {SLOTS.map((t) => (
+                    {timesFor(selected).map((t) => (
                       <button
                         key={t}
                         onClick={() => setSlot(t)}
@@ -221,6 +263,9 @@ export function ServicesCatalog({ services }: { services: Service[] }) {
                       </button>
                     ))}
                   </div>
+                  <p className="mt-2 text-xs text-stone-500">
+                    The villa runs this experience at set times to do it properly.
+                  </p>
                 </div>
 
                 <div>
@@ -234,7 +279,7 @@ export function ServicesCatalog({ services }: { services: Service[] }) {
                       <RadioGroupItem value="folio" /> Add to villa folio — settle at checkout
                     </label>
                     <label className="flex items-center gap-3 rounded-md border border-border p-3 text-sm">
-                      <RadioGroupItem value="now" /> Pay now via Midtrans
+                      <RadioGroupItem value="now" /> Pay now via Midtrans — invoiced immediately
                     </label>
                   </RadioGroup>
                 </div>
@@ -243,7 +288,14 @@ export function ServicesCatalog({ services }: { services: Service[] }) {
                   <Label htmlFor="svc-notes" className="text-xs tracking-[0.1em] text-stone-500 uppercase">
                     Notes
                   </Label>
-                  <Textarea id="svc-notes" rows={2} className="mt-2 bg-white" placeholder="Anything we should know?" />
+                  <Textarea
+                    id="svc-notes"
+                    rows={2}
+                    value={notes}
+                    onChange={(e) => setNotes(e.target.value)}
+                    className="mt-2 bg-white"
+                    placeholder="Anything we should know?"
+                  />
                 </div>
 
                 <button

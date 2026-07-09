@@ -6,11 +6,36 @@
 import type { Metadata } from "next";
 import { ServicesCatalog } from "./services-catalog";
 import { getServices } from "@/lib/server/services";
+import { getStays } from "@/lib/server/reservations";
+import { getVillaBySlugMap } from "@/lib/server/catalog";
 
 export const metadata: Metadata = { title: "Services" };
 
+/** Note 2 §5 — the days the guest can schedule against are the real nights of
+ *  their stay (from the reservation), not hard-coded dates. */
+function stayDays(checkIn?: string, nights?: number): { iso: string; label: string }[] {
+  const start = checkIn ? new Date(checkIn) : new Date();
+  const count = Math.max(nights ?? 4, 1);
+  const days: { iso: string; label: string }[] = [];
+  for (let i = 0; i < Math.min(count, 7); i++) {
+    const d = new Date(start);
+    d.setDate(start.getDate() + i);
+    if (Number.isNaN(d.getTime())) continue;
+    const iso = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+    days.push({ iso, label: d.toLocaleDateString("en-US", { month: "short", day: "numeric" }) });
+  }
+  return days;
+}
+
 export default async function ServicesPage() {
-  const services = await getServices();
+  const [services, stays, villaMap] = await Promise.all([
+    getServices(),
+    getStays("upcoming"),
+    getVillaBySlugMap(),
+  ]);
+  const stay = stays.find((s) => s.state === "checked_in") ?? stays[0];
+  const villa = stay ? villaMap.get(stay.villaSlug) : undefined;
+  const days = stayDays(stay?.checkIn, stay?.nights);
   return (
     <main className="container-na py-12 lg:py-16">
       <p className="eyebrow">During your stay</p>
@@ -19,7 +44,11 @@ export default async function ServicesPage() {
         Everything below can be charged to your villa folio and settled at checkout — the
         luxury-correct default — or paid now.
       </p>
-      <ServicesCatalog services={services} />
+      <ServicesCatalog
+        services={services}
+        days={days}
+        villaLabel={villa?.name ?? "your villa"}
+      />
     </main>
   );
 }

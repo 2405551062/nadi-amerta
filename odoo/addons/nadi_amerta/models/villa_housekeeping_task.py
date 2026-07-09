@@ -9,6 +9,7 @@ x_availability toward "available" (ready for sale).
 import json
 
 from odoo import api, fields, models
+from odoo.exceptions import UserError
 
 CHECKLISTS = {
     "turnover": ["Strip & replace linen", "Bathroom & amenities", "Pool skim & deck", "Minibar restock", "Inspection photos"],
@@ -34,6 +35,25 @@ class VillaHousekeepingTask(models.Model):
         string="Type", default="turnover", required=True,
     )
     assignee_id = fields.Many2one("res.users", string="Assigned to")
+    # Note #5 — which room/unit within the villa this task covers, and before/after
+    # photo evidence the housekeeper uploads on completion.
+    # Note 2 §1 — room_id points at a real villa.room; room_label mirrors its code
+    # (kept for back-compat / free-text fallback).
+    room_id = fields.Many2one(
+        "villa.room", string="Room / unit",
+        domain="[('product_id', '=', product_id)]",
+    )
+    room_label = fields.Char(string="Room label", help="Which unit of the villa, e.g. 'TIR-02'.")
+
+    @api.onchange("room_id")
+    def _onchange_room_id(self):
+        for t in self:
+            if t.room_id:
+                t.room_label = t.room_id.code
+    # Plain Binary (stored inline) — avoids the attachment image-processing path so
+    # any uploaded photo saves without server-side thumbnailing.
+    photo_before = fields.Binary(string="Photo — before")
+    photo_after = fields.Binary(string="Photo — after")
     due = fields.Datetime(string="Due")
     state = fields.Selection(
         [
@@ -48,6 +68,11 @@ class VillaHousekeepingTask(models.Model):
         string="Checklist",
         help="JSON array of {label, done} — mirrors the housekeeping UI.",
     )
+    # Villa board room status — the housekeeper's sign-off report management
+    # (back office / HR) reviews after the checklist is complete.
+    conclusion = fields.Text(string="Completion notes")
+    submitted_at = fields.Datetime(string="Submitted at")
+    submitted_by_id = fields.Many2one("res.users", string="Submitted by")
 
     @api.depends("product_id", "task_type")
     def _compute_name(self):
@@ -68,7 +93,21 @@ class VillaHousekeepingTask(models.Model):
                 vals["checklist_json"] = json.dumps(
                     [{"label": l, "done": i < done_upto} for i, l in enumerate(labels)]
                 )
+            self._sync_room_label(vals)
         return super().create(vals_list)
+
+    def write(self, vals):
+        # Keep room_label mirrored on the room code when a room is chosen via API.
+        self._sync_room_label(vals)
+        return super().write(vals)
+
+    @api.model
+    def _sync_room_label(self, vals):
+        """When room_id is set (BFF write, no onchange), copy its code to room_label."""
+        if vals.get("room_id"):
+            room = self.env["villa.room"].browse(vals["room_id"])
+            if room.exists():
+                vals["room_label"] = room.code
 
     def toggle_item(self, index):
         """Flip one checklist item; auto-advance when all are done. Returns the list."""
@@ -81,6 +120,24 @@ class VillaHousekeepingTask(models.Model):
             self.state = "inspection"
             self.product_id.x_availability = "inspection"
         return items
+
+    def action_submit(self, conclusion=None):
+        """The housekeeper signs off: checklist must be fully checked; records
+        their completion notes and marks the task Done. The room (or villa, if
+        no specific room) becomes ready for sale. Back office / HR reviews the
+        conclusion afterward — see the Housekeeping reports panel."""
+        for t in self:
+            items = json.loads(t.checklist_json or "[]")
+            if not items or not all(i.get("done") for i in items):
+                raise UserError("Complete every checklist item before submitting.")
+            t.conclusion = conclusion or t.conclusion
+            t.submitted_at = fields.Datetime.now()
+            t.submitted_by_id = self.env.user.id
+            t.state = "done"
+            if t.room_id:
+                t.room_id.status = "ready"
+            t.product_id.x_availability = "available"
+        return True
 
     def action_advance(self):
         """Advance one step; reaching Done marks the villa Available (B25)."""

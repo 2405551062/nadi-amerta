@@ -17,6 +17,8 @@ interface OdooService {
   x_chapter: "Wellness" | "Journeys" | "Occasions" | false;
   x_duration: string | false;
   x_excerpt: string | false;
+  x_service_time: string | false;
+  x_service_location: string | false;
   list_price: number;
 }
 
@@ -26,7 +28,7 @@ export async function getServices(): Promise<Service[]> {
     const rows = await searchRead<OdooService>(
       "product.template",
       [["x_kind", "=", "service"]],
-      ["name", "x_slug", "x_chapter", "x_duration", "x_excerpt", "list_price"],
+      ["name", "x_slug", "x_chapter", "x_duration", "x_excerpt", "x_service_time", "x_service_location", "list_price"],
       { order: "id" }
     );
     return rows.map((o) => {
@@ -40,6 +42,10 @@ export async function getServices(): Promise<Service[]> {
         price: Math.round(o.list_price),
         description: preset?.description || o.x_excerpt || "",
         image: preset?.image,
+        times: o.x_service_time
+          ? o.x_service_time.split(",").map((s) => s.trim()).filter(Boolean)
+          : [],
+        location: o.x_service_location || "",
       };
     });
   } catch (err) {

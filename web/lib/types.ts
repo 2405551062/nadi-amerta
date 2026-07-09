@@ -31,6 +31,8 @@ export interface Villa {
   description: string;
   status: VillaStatus;
   minStay: number;
+  roomsTotal?: number; // number of identical bookable units (Note #3)
+  roomsAvailableNow?: number; // units free today, decreases as bookings are made
   currentGuest?: string;
 }
 
@@ -82,6 +84,9 @@ export interface Service {
   price: number; // 0 = included
   description: string;
   image?: string;
+  // Note 2 §5 — realistic villa-provided start time(s) and where it happens.
+  times?: string[];
+  location?: string;
 }
 
 export interface MenuItem {
@@ -106,6 +111,9 @@ export interface GuestRequest {
   villa: string;
   guestName: string;
   priority: "high" | "medium" | "low";
+  // Note 2 §3 — inventory requests draw stock; complaints route to engineering.
+  route?: "inventory" | "maintenance" | "none";
+  maintenanceFlagged?: boolean;
 }
 
 export interface HousekeepingTask {
@@ -113,9 +121,15 @@ export interface HousekeepingTask {
   villaSlug: string;
   type: "Turnover" | "Stayover" | "Deep clean";
   assignee: string;
+  assigneeId?: number;
+  roomId?: number;
+  roomLabel?: string;
   due: string;
   state: "todo" | "doing" | "done";
   checklist: { label: string; done: boolean }[];
+  // Housekeeper sign-off — back office / HR reviews the conclusion.
+  conclusion?: string;
+  submittedAt?: string;
 }
 
 export interface StockItem {

@@ -12,17 +12,24 @@ import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
 import { idr } from "@/lib/format";
-import { getKpis, getLedger, getReconciliation, getRevenueSeries } from "@/lib/server/finance";
+import { getKpis, getLedger, getReconciliation, getRevenueSeries, getRecentInvoices } from "@/lib/server/finance";
 import { FinanceActions, ReconciliationList } from "./finance-actions";
 
 export const metadata: Metadata = { title: "Finance" };
 
+const INV_TONE: Record<string, string> = {
+  paid: "bg-sage-300/30 text-palm-700",
+  awaiting: "bg-amber-100 text-amber-800",
+  refunded: "bg-stone-200 text-stone-600",
+};
+
 export default async function FinancePage() {
-  const [kpis, ledger, reconciliation, revenueSeries] = await Promise.all([
+  const [kpis, ledger, reconciliation, revenueSeries, invoices] = await Promise.all([
     getKpis(),
     getLedger(),
     getReconciliation(),
     getRevenueSeries(),
+    getRecentInvoices(),
   ]);
   return (
     <>
@@ -80,6 +87,42 @@ export default async function FinancePage() {
             </Panel>
           </div>
         </div>
+
+        {/* Invoices — real posted account.move records (Note #7) */}
+        <Panel title={`Invoices · ${invoices.length} posted`}>
+          {invoices.length === 0 ? (
+            <p className="py-6 text-center text-sm text-stone-500">
+              No invoices posted yet — they generate shortly after each booking is confirmed.
+            </p>
+          ) : (
+            <Table>
+              <TableHeader className="bg-ivory-200/60">
+                <TableRow className="hover:bg-transparent">
+                  <TableHead className="text-xs tracking-[0.08em] text-stone-500 uppercase">Invoice</TableHead>
+                  <TableHead className="text-xs tracking-[0.08em] text-stone-500 uppercase">Guest</TableHead>
+                  <TableHead className="text-xs tracking-[0.08em] text-stone-500 uppercase">Date</TableHead>
+                  <TableHead className="text-xs tracking-[0.08em] text-stone-500 uppercase">Status</TableHead>
+                  <TableHead className="text-right text-xs tracking-[0.08em] text-stone-500 uppercase">Amount</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {invoices.map((inv) => (
+                  <TableRow key={inv.number} className="h-12 hover:bg-ivory-200/40">
+                    <TableCell className="font-mono text-xs text-ocean-500">{inv.number}</TableCell>
+                    <TableCell className="text-sm text-ink-900">{inv.guest}</TableCell>
+                    <TableCell className="text-sm text-stone-500">{inv.date}</TableCell>
+                    <TableCell>
+                      <span className={`rounded-full px-2 py-0.5 text-[11px] font-medium capitalize ${INV_TONE[inv.state]}`}>
+                        {inv.state}
+                      </span>
+                    </TableCell>
+                    <TableCell className="text-right font-mono text-[13px] text-ink-900">{idr(inv.amount)}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
+        </Panel>
 
         {/* Reconciliation — B21 as workflow, not report (design/07 §4.4) */}
         <Panel title="Midtrans settlements · reconciliation">

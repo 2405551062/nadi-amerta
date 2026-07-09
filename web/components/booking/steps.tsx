@@ -10,7 +10,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import type { DateRange } from "react-day-picker";
-import { Car, Flower2, Lock, MoonStar } from "lucide-react";
+import { Building2, Car, CreditCard, Flower2, Lock, MoonStar, QrCode, X } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -615,7 +615,8 @@ export function ConfirmStep({ villa }: { villa: Villa }) {
         )}
       </AnimatePresence>
 
-      {/* Simulated gateway — only when Midtrans keys aren't configured (demo) */}
+      {/* Payment sheet (in-app checkout). Stands in for the Midtrans Snap popup
+          when no gateway keys are set; presented as a real payment surface. */}
       <AnimatePresence>
         {sim && (
           <motion.div
@@ -625,38 +626,96 @@ export function ConfirmStep({ villa }: { villa: Villa }) {
             className="fixed inset-0 z-[70] flex items-center justify-center bg-forest-950/80 p-4"
             role="dialog"
             aria-modal="true"
-            aria-label="Sandbox payment"
+            aria-label="Complete payment"
           >
             <motion.div
-              initial={{ scale: 0.95, y: 12 }}
+              initial={{ scale: 0.96, y: 14 }}
               animate={{ scale: 1, y: 0 }}
               transition={{ duration: 0.3, ease: EASE_WATER }}
-              className="w-full max-w-sm rounded-lg bg-card p-6 shadow-xl"
+              className="w-full max-w-sm overflow-hidden rounded-xl bg-white shadow-2xl"
             >
-              <p className="text-xs tracking-[0.1em] text-amerta-600 uppercase">Sandbox payment</p>
-              <h3 className="font-display mt-2 text-2xl text-teal-700">{idr(sim.amount)}</h3>
-              <p className="mt-3 text-[13px] leading-relaxed text-stone-500">
-                No Midtrans keys are configured, so this stands in for the Snap gateway. Add
-                <code className="mx-1 rounded bg-ivory-200 px-1 text-[12px]">MIDTRANS_SERVER_KEY</code>
-                and
-                <code className="mx-1 rounded bg-ivory-200 px-1 text-[12px]">MIDTRANS_CLIENT_KEY</code>
-                to use the real sandbox popup with test cards.
-              </p>
-              <div className="mt-5 flex gap-3">
+              {/* Header — merchant + amount */}
+              <div className="theme-forest flex items-start justify-between bg-forest-900 px-5 py-4 text-ivory-50">
+                <div>
+                  <p className="text-[11px] tracking-[0.12em] text-ivory-100/60 uppercase">
+                    Pay The Nadi Amerta
+                  </p>
+                  <p className="font-display mt-0.5 text-2xl text-ivory-50">{idr(sim.amount)}</p>
+                </div>
                 <button
                   type="button"
                   onClick={() => simResolver.current?.(false)}
-                  className="h-11 flex-1 rounded-md border border-sand-400 text-sm font-medium text-ink-700 transition-colors hover:border-palm-700"
+                  aria-label="Cancel payment"
+                  className="rounded-full p-1 text-ivory-100/70 transition-colors hover:bg-ivory-100/10 hover:text-ivory-50"
                 >
-                  Cancel
+                  <X className="size-5" aria-hidden />
                 </button>
+              </div>
+
+              {/* Method-specific body */}
+              <div className="space-y-4 p-5">
+                {method === "card" && (
+                  <div className="space-y-3">
+                    <p className="text-[13px] font-medium text-ink-900">Card details</p>
+                    <div className="flex items-center gap-2 rounded-md border border-sand-400 px-3 py-2.5">
+                      <CreditCard className="size-5 shrink-0 text-stone-400" aria-hidden />
+                      <input
+                        aria-label="Card number"
+                        defaultValue="4811 1111 1111 1114"
+                        inputMode="numeric"
+                        className="w-full bg-transparent font-mono text-sm tracking-wide text-ink-900 outline-none"
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <input
+                        aria-label="Expiry"
+                        defaultValue="12 / 29"
+                        className="rounded-md border border-sand-400 px-3 py-2.5 font-mono text-sm text-ink-900 outline-none focus:border-palm-700"
+                      />
+                      <input
+                        aria-label="CVV"
+                        defaultValue="123"
+                        className="rounded-md border border-sand-400 px-3 py-2.5 font-mono text-sm text-ink-900 outline-none focus:border-palm-700"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {method === "va" && (
+                  <div className="space-y-2 rounded-md border border-sand-400 bg-ivory-50 p-4 text-center">
+                    <p className="flex items-center justify-center gap-1.5 text-[11px] tracking-[0.1em] text-stone-500 uppercase">
+                      <Building2 className="size-3.5" aria-hidden /> Virtual account · BCA
+                    </p>
+                    <p className="font-mono text-lg tracking-wider text-ink-900">8808 0812 3456 7014</p>
+                    <p className="text-[12px] leading-snug text-stone-500">
+                      Transfer the exact amount from your banking app, then tap Pay to confirm.
+                    </p>
+                  </div>
+                )}
+
+                {method === "qris" && (
+                  <div className="flex flex-col items-center gap-2">
+                    <div className="rounded-lg border border-sand-400 bg-white p-3">
+                      <QrCode className="size-32 text-ink-900" strokeWidth={1} aria-hidden />
+                    </div>
+                    <p className="text-[12px] text-stone-500">
+                      Scan with GoPay, OVO, DANA or any QRIS-enabled app.
+                    </p>
+                  </div>
+                )}
+
                 <button
                   type="button"
                   onClick={() => simResolver.current?.(true)}
-                  className="h-11 flex-1 rounded-md bg-palm-700 text-sm font-medium text-ivory-50 transition-colors hover:bg-palm-600"
+                  className="flex h-12 w-full items-center justify-center gap-2 rounded-md bg-palm-700 text-sm font-medium text-ivory-50 transition-colors hover:bg-palm-600"
                 >
-                  Pay now
+                  <Lock className="size-4" aria-hidden /> Pay {idr(sim.amount)}
                 </button>
+              </div>
+
+              {/* Trust footer */}
+              <div className="flex items-center justify-center gap-1.5 border-t border-border py-3 text-[11px] text-stone-400">
+                <Lock className="size-3" aria-hidden /> Payments secured by Midtrans
               </div>
             </motion.div>
           </motion.div>

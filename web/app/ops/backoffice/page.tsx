@@ -5,9 +5,11 @@
  * account.move · GET /api/ops/reports/analytics · POST /api/ops/exports
  */
 import type { Metadata } from "next";
+import { ClipboardCheck } from "lucide-react";
 import { AreaChart, KpiCard, OpsHeader, Panel } from "@/components/ops/ui";
 import { Surface } from "@/components/motion";
 import { getRevenueSeries } from "@/lib/server/finance";
+import { getTaskReports } from "@/lib/server/housekeeping";
 import { ExportActions } from "./export-actions";
 
 export const metadata: Metadata = { title: "Back office" };
@@ -20,7 +22,7 @@ const SOURCE_MIX = [
 ];
 
 export default async function BackOfficePage() {
-  const revenueSeries = await getRevenueSeries();
+  const [revenueSeries, taskReports] = await Promise.all([getRevenueSeries(), getTaskReports()]);
   return (
     <>
       <OpsHeader greeting="Back office" sub="Documentation, exports & analytics · July 2026" />
@@ -55,6 +57,32 @@ export default async function BackOfficePage() {
             </ul>
           </Panel>
         </div>
+
+        {/* Housekeeper sign-off reports — HR / back office review */}
+        <Panel title="Housekeeping reports">
+          {taskReports.length === 0 ? (
+            <p className="text-sm text-stone-500">No completion reports submitted yet.</p>
+          ) : (
+            <ul className="divide-y divide-border">
+              {taskReports.map((r) => (
+                <li key={r.id} className="flex flex-wrap items-start gap-3 py-3">
+                  <ClipboardCheck className="mt-0.5 size-4 shrink-0 text-sage-500" aria-hidden />
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-medium text-ink-900">
+                      {r.villa}
+                      {r.roomLabel ? <span className="font-mono text-teal-700"> · {r.roomLabel}</span> : null} · {r.type}
+                    </p>
+                    <p className="mt-0.5 text-xs text-stone-500">
+                      {r.assignee} · submitted {r.submittedAt}
+                      {r.submittedBy && r.submittedBy !== r.assignee ? ` by ${r.submittedBy}` : ""}
+                    </p>
+                    {r.conclusion && <p className="mt-1.5 text-[13px] leading-relaxed text-ink-700">{r.conclusion}</p>}
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </Panel>
 
         {/* B12 + B13 — documentation & exports */}
         <ExportActions />

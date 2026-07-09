@@ -39,6 +39,8 @@ The Next.js BFF talks to these models over the JSON-RPC external API.
         "data/supplies.xml",
         "data/transactions.xml",
         "data/service_access.xml",
+        "data/staff.xml",
+        "data/cron.xml",
         "views/villa_reservation_views.xml",
         "views/villa_housekeeping_views.xml",
         "views/villa_guest_request_views.xml",

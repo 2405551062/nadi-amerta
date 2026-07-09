@@ -157,8 +157,10 @@ export interface CreateReservationInput {
   paymentMethod?: string;
 }
 
-/** Booking confirm (B4): find/create guest, create villa.reservation, confirm it. Returns the code. */
-export async function createReservation(input: CreateReservationInput): Promise<{ code: string; id: number }> {
+/** Booking confirm (B4): find/create guest, create villa.reservation, confirm it. Returns the code + guest. */
+export async function createReservation(
+  input: CreateReservationInput
+): Promise<{ code: string; id: number; partnerId: number; guestName: string }> {
   const villaMap = await getVillaBySlugMap();
   const villa = villaMap.get(input.villaSlug);
   if (!villa) throw new Error(`Unknown villa ${input.villaSlug}`);
@@ -221,37 +223,76 @@ export async function createReservation(input: CreateReservationInput): Promise<
   }
 
   const rows = await searchRead<{ name: string }>("villa.reservation", [["id", "=", resId]], ["name"]);
-  return { code: rows[0]?.name ?? String(resId), id: resId };
+  return { code: rows[0]?.name ?? String(resId), id: resId, partnerId, guestName: input.fullName };
 }
 
-/* ---------------- Availability (real overlap check) ---------------- */
+/* ---------------- Availability (capacity-aware, Note #3) ---------------- */
 
-/** Product-template ids that have a non-cancelled reservation overlapping [checkin, checkout). */
+/** Villa ids that are FULLY booked across [checkin, checkout) — i.e. every room
+ *  is taken on at least one overlapping night, so no unit is available. */
 export async function getBusyVillaIds(checkin?: string, checkout?: string): Promise<Set<number>> {
   if (!USE_ODOO || !checkin || !checkout) return new Set();
-  const rows = await searchRead<{ product_id: [number, string] | false }>(
+  const rows = await searchRead<{ product_id: [number, string] | false; check_in_date: string | false; check_out_date: string | false }>(
     "villa.reservation",
     [
-      ["state", "not in", ["cancelled"]],
+      ["state", "not in", ["cancelled", "draft"]],
       ["check_in_date", "<", checkout],
       ["check_out_date", ">", checkin],
     ],
-    ["product_id"]
+    ["product_id", "check_in_date", "check_out_date"]
   );
-  return new Set(rows.map((r) => m2oId(r.product_id)).filter((x): x is number => !!x));
+  const villaMap = await getVillaMap();
+  // Per villa, count concurrent reservations on each night in the window.
+  const perVilla = new Map<number, Map<string, number>>();
+  for (const r of rows) {
+    const id = m2oId(r.product_id);
+    if (!id || !r.check_in_date || !r.check_out_date) continue;
+    const nights = perVilla.get(id) ?? new Map<string, number>();
+    perVilla.set(id, nights);
+    const lo = new Date((r.check_in_date > checkin ? r.check_in_date : checkin) + "T00:00:00");
+    const hi = new Date((r.check_out_date < checkout ? r.check_out_date : checkout) + "T00:00:00");
+    for (let d = new Date(lo); d < hi; d.setDate(d.getDate() + 1)) {
+      const key = d.toISOString().slice(0, 10);
+      nights.set(key, (nights.get(key) ?? 0) + 1);
+    }
+  }
+  const busy = new Set<number>();
+  for (const [id, nights] of perVilla) {
+    const total = villaMap.get(id)?.roomsTotal ?? 1;
+    // fully booked if ANY night in the window hits capacity
+    if ([...nights.values()].some((c) => c >= total)) busy.add(id);
+  }
+  return busy;
 }
 
-/** Booked night ranges (ISO) for a villa, to disable in the date picker. */
+/** Fully-booked nights (ISO) for a villa, to disable in the date picker — only
+ *  nights where every room is taken are blocked. */
 export async function getBookedRanges(villaId: number): Promise<{ from: string; to: string }[]> {
   if (!USE_ODOO) return [];
   const rows = await searchRead<{ check_in_date: string | false; check_out_date: string | false }>(
     "villa.reservation",
-    [["product_id", "=", villaId], ["state", "not in", ["cancelled"]]],
+    [["product_id", "=", villaId], ["state", "not in", ["cancelled", "draft"]]],
     ["check_in_date", "check_out_date"]
   );
-  return rows
-    .filter((r) => r.check_in_date && r.check_out_date)
-    .map((r) => ({ from: r.check_in_date as string, to: r.check_out_date as string }));
+  const total = (await getVillaMap()).get(villaId)?.roomsTotal ?? 1;
+  // Occupancy per night across all reservations.
+  const nightCount = new Map<string, number>();
+  for (const r of rows) {
+    if (!r.check_in_date || !r.check_out_date) continue;
+    const end = new Date(r.check_out_date + "T00:00:00");
+    for (let d = new Date(r.check_in_date + "T00:00:00"); d < end; d.setDate(d.getDate() + 1)) {
+      const key = d.toISOString().slice(0, 10);
+      nightCount.set(key, (nightCount.get(key) ?? 0) + 1);
+    }
+  }
+  // Each fully-booked night → a one-night disabled range [night, night+1).
+  return [...nightCount.entries()]
+    .filter(([, c]) => c >= total)
+    .map(([night]) => {
+      const next = new Date(night + "T00:00:00");
+      next.setDate(next.getDate() + 1);
+      return { from: night, to: next.toISOString().slice(0, 10) };
+    });
 }
 
 /**

@@ -97,6 +97,40 @@ export async function getLedger(): Promise<LedgerEntry[]> {
   return [...roomLines, ...fnbLines];
 }
 
+export interface FinanceInvoice {
+  number: string;
+  guest: string;
+  date: string;
+  amount: number;
+  state: "paid" | "awaiting" | "refunded";
+}
+
+/** Note #7 — real posted customer invoices (account.move) for the finance console. */
+export async function getRecentInvoices(limit = 12): Promise<FinanceInvoice[]> {
+  if (!USE_ODOO) return [];
+  const moves = await searchRead<{
+    name: string; partner_id: [number, string] | false;
+    invoice_date: string | false; amount_total: number; payment_state: string;
+  }>(
+    "account.move",
+    [["move_type", "=", "out_invoice"], ["state", "=", "posted"]],
+    ["name", "partner_id", "invoice_date", "amount_total", "payment_state"],
+    { order: "invoice_date desc, id desc", limit }
+  );
+  return moves.map((m) => ({
+    number: m.name,
+    guest: m2oName(m.partner_id),
+    date: fmtOdooDate(m.invoice_date),
+    amount: Math.round(m.amount_total),
+    state:
+      m.payment_state === "reversed"
+        ? "refunded"
+        : m.payment_state === "paid" || m.payment_state === "in_payment"
+          ? "paid"
+          : "awaiting",
+  }));
+}
+
 export async function getReconciliation() {
   return mockRecon;
 }

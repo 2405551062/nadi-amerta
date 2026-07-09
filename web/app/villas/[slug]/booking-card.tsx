@@ -62,7 +62,25 @@ export function BookingCard({ villa, bookedRanges = [] }: { villa: Villa; booked
           <span className="text-price text-teal-700">{idr(villa.priceNight)}</span>
           <span className="ml-1.5 text-[13px] text-stone-500">/ night</span>
         </p>
-        <p className="mt-1 text-[13px] text-sage-500">Two August weekends remain</p>
+        {villa.roomsTotal ? (
+          <p
+            className={cn(
+              "mt-1 flex items-center gap-1.5 text-[13px] font-medium",
+              (villa.roomsAvailableNow ?? 0) > 0 ? "text-palm-700" : "text-terracotta-500"
+            )}
+          >
+            <span
+              aria-hidden
+              className={cn(
+                "size-1.5 rounded-full",
+                (villa.roomsAvailableNow ?? 0) > 0 ? "bg-palm-600" : "bg-terracotta-500"
+              )}
+            />
+            {(villa.roomsAvailableNow ?? 0) > 0
+              ? `${villa.roomsAvailableNow} of ${villa.roomsTotal} rooms available now`
+              : "Fully booked today"}
+          </p>
+        ) : null}
 
         <Popover>
           <PopoverTrigger asChild>

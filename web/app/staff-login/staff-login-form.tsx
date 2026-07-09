@@ -64,10 +64,37 @@ export function StaffLoginForm() {
         </button>
       </form>
 
-      <p className="mt-8 text-[13px] text-stone-500">
-        Dev credentials: <span className="font-mono">admin / admin</span>
-      </p>
-      <p className="mt-2 text-[13px] text-stone-500">
+      {/* Note 2 §2 — demo staff accounts so the role hierarchy can be shown live.
+          Password equals the username for every account. Click to fill. */}
+      <details className="mt-8 rounded-md border border-sand-400 bg-white/60 p-3 text-[13px] text-stone-500">
+        <summary className="cursor-pointer font-medium text-ink-700">Demo staff accounts (password = username)</summary>
+        <ul className="mt-3 space-y-1.5">
+          {[
+            { role: "General Manager (admin)", login: "manager@nadiamerta.local" },
+            { role: "Front Office", login: "frontoffice@nadiamerta.local" },
+            { role: "Housekeeping", login: "housekeeper@nadiamerta.local" },
+            { role: "Food & Beverage", login: "fnb@nadiamerta.local" },
+            { role: "Finance", login: "finance@nadiamerta.local" },
+            { role: "Back Office", login: "backoffice@nadiamerta.local" },
+          ].map((a) => (
+            <li key={a.login} className="flex flex-wrap items-center justify-between gap-2">
+              <span>{a.role}</span>
+              <button
+                type="button"
+                onClick={() => {
+                  setLogin(a.login);
+                  setPassword(a.login);
+                }}
+                className="font-mono text-[12px] text-teal-700 underline underline-offset-2 hover:text-palm-700"
+              >
+                {a.login}
+              </button>
+            </li>
+          ))}
+        </ul>
+        <p className="mt-2 text-[12px]">Superuser: <span className="font-mono">admin / admin</span></p>
+      </details>
+      <p className="mt-4 text-[13px] text-stone-500">
         Guest?{" "}
         <Link href="/signin" className="font-medium text-teal-700 underline underline-offset-4">
           Guest sign-in

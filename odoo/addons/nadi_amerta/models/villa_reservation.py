@@ -82,6 +82,9 @@ class VillaReservation(models.Model):
     payment_ref = fields.Char(string="Payment reference", copy=False, tracking=True)
     payment_method = fields.Char(string="Payment method")
     paid_amount = fields.Float(string="Amount paid")
+    # Note #7 — a real posted customer invoice (account.move), generated from the
+    # linked sale order so finance sees genuine accounting entries.
+    invoice_id = fields.Many2one("account.move", string="Invoice", copy=False)
 
     housekeeping_task_ids = fields.One2many(
         "villa.housekeeping.task", "reservation_id", string="Housekeeping tasks",
@@ -120,11 +123,13 @@ class VillaReservation(models.Model):
                 raise ValidationError("Check-out must be after check-in.")
 
     @api.constrains("check_in_date", "check_out_date", "product_id", "state")
-    def _check_no_overlap(self):
+    def _check_capacity(self):
+        """Note #3 — allow concurrent bookings up to the villa's room count.
+        A villa is full only when overlapping reservations reach x_total_rooms."""
         for r in self:
             if r.state in ("cancelled", "draft"):
                 continue
-            clash = self.search_count(
+            overlapping = self.search_count(
                 [
                     ("id", "!=", r.id),
                     ("product_id", "=", r.product_id.id),
@@ -133,9 +138,11 @@ class VillaReservation(models.Model):
                     ("check_out_date", ">", r.check_in_date),
                 ]
             )
-            if clash:
+            capacity = r.product_id.x_total_rooms or 1
+            if overlapping >= capacity:
                 raise ValidationError(
-                    "%s is already reserved for those dates." % r.product_id.name
+                    "%s is fully booked for those dates — all %d room(s) are taken."
+                    % (r.product_id.name, capacity)
                 )
 
     # -- create ----------------------------------------------------------
@@ -200,6 +207,41 @@ class VillaReservation(models.Model):
             )
         return True
 
+    @api.model
+    def _cron_generate_invoices(self, limit=20):
+        """Note #7 + #1/#2 — fill the invoice database in the background so the
+        booking request stays fast. Invoices confirmed reservations that don't
+        have one yet, a small batch at a time."""
+        pending = self.search(
+            [("state", "in", ["confirmed", "checked_in", "checked_out"]),
+             ("invoice_id", "=", False)],
+            limit=limit,
+        )
+        for r in pending:
+            try:
+                r._ensure_invoice()
+                self.env.cr.commit()
+            except Exception:
+                self.env.cr.rollback()
+        # Note #11 — service bookings + billed dining orders also output invoices.
+        for b in self.env["villa.service.booking"].search(
+            [("state", "!=", "cancelled"), ("invoice_id", "=", False)], limit=limit
+        ):
+            try:
+                b._ensure_invoice()
+                self.env.cr.commit()
+            except Exception:
+                self.env.cr.rollback()
+        for o in self.env["villa.fnb.order"].search(
+            [("state", "=", "billed"), ("invoice_id", "=", False)], limit=limit
+        ):
+            try:
+                o._ensure_invoice()
+                self.env.cr.commit()
+            except Exception:
+                self.env.cr.rollback()
+        return True
+
     def register_payment(self, ref, amount, state="paid", method=False):
         """Record a Midtrans settlement against the reservation (called by the BFF
         after the gateway confirms). Does not touch the sale order / ledger —
@@ -214,6 +256,39 @@ class VillaReservation(models.Model):
                 state, amount, ref,
             ))
         return True
+
+    def _ensure_invoice(self):
+        """Note #7 — generate + post a real account.move invoice from the sale
+        order, then (demo money) register full payment so it reads as Paid.
+        Idempotent: returns the existing invoice if one is already linked."""
+        self.ensure_one()
+        if self.invoice_id:
+            return self.invoice_id
+        order = self._ensure_sale_order()
+        if order.state not in ("sale", "done"):
+            order.action_confirm()
+        if order.invoice_status == "no":
+            return False
+        invoices = order._create_invoices()
+        if not invoices:
+            return False
+        invoices.action_post()
+        self.invoice_id = invoices[:1].id
+        self._register_demo_payment(invoices)
+        return self.invoice_id
+
+    def _register_demo_payment(self, invoices):
+        """Register a full payment against each invoice (demonstration funds)."""
+        for inv in invoices:
+            if inv.state != "posted" or inv.payment_state in ("paid", "in_payment", "reversed"):
+                continue
+            try:
+                wizard = self.env["account.payment.register"].with_context(
+                    active_model="account.move", active_ids=inv.ids,
+                ).create({})
+                wizard.action_create_payments()
+            except Exception:
+                pass
 
     def action_check_in(self):
         """B7 — check-in process; villa becomes occupied."""

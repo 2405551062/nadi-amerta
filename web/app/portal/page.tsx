@@ -83,13 +83,40 @@ export default async function PortalDashboard() {
             </h1>
 
             {upcoming && villa ? (
-              <div className="glass-dark mt-8 inline-block min-w-[300px] rounded-lg p-6">
-                <p className="font-display text-xl text-ivory-50">
-                  {villa.name} · {formatRange(upcoming.checkIn, upcoming.checkOut)}
+              <div className="glass-dark mt-8 inline-block min-w-[320px] max-w-md rounded-lg p-6">
+                <p className="text-[11px] tracking-[0.14em] text-ivory-100/50 uppercase">
+                  Your reserved villa
                 </p>
-                <div aria-hidden className="my-4 h-px w-full bg-amerta-300/30" />
-                <p className="font-display text-2xl text-amerta-300">
-                  {countdown > 0 ? `${countdown} days until Bali` : "Your stay is here"}
+                <p className="font-display mt-1 text-2xl text-ivory-50">{villa.name}</p>
+                <p className="mt-1 text-[13px] text-ivory-100/70">
+                  {villa.bedrooms} {villa.bedrooms === 1 ? "bedroom" : "bedrooms"} ·{" "}
+                  {villa.view === "river"
+                    ? "River view"
+                    : villa.view === "rice"
+                      ? "Rice-paddy view"
+                      : "Garden view"}{" "}
+                  · {upcoming.guests} {upcoming.guests === 1 ? "guest" : "guests"}
+                </p>
+                <div className="my-4 grid grid-cols-2 gap-4 border-y border-amerta-300/20 py-3">
+                  <div>
+                    <p className="text-[11px] tracking-[0.1em] text-ivory-100/50 uppercase">Check-in</p>
+                    <p className="mt-0.5 text-sm text-ivory-50">{upcoming.checkIn}</p>
+                    <p className="text-[11px] text-ivory-100/50">from 14:00</p>
+                  </div>
+                  <div>
+                    <p className="text-[11px] tracking-[0.1em] text-ivory-100/50 uppercase">Check-out</p>
+                    <p className="mt-0.5 text-sm text-ivory-50">{upcoming.checkOut}</p>
+                    <p className="text-[11px] text-ivory-100/50">by 12:00</p>
+                  </div>
+                </div>
+                <p className="font-display text-xl text-amerta-300">
+                  {upcoming.state === "checked_in"
+                    ? `Checked in · check out in ${daysUntil(upcoming.checkOut)} ${
+                        daysUntil(upcoming.checkOut) === 1 ? "day" : "days"
+                      }`
+                    : countdown > 0
+                      ? `${countdown} ${countdown === 1 ? "day" : "days"} until check-in`
+                      : "Your stay is here"}
                 </p>
                 <Link
                   href={`/stays/${upcoming.code}`}

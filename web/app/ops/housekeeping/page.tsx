@@ -7,25 +7,37 @@
 import type { Metadata } from "next";
 import { OpsHeader } from "@/components/ops/ui";
 import { HousekeepingBoard } from "./hk-board";
-import { getTasks, getVillaStatuses } from "@/lib/server/housekeeping";
+import { getTasks, getVillaStatuses, getHousekeepers, getRooms } from "@/lib/server/housekeeping";
 import { getArrivalsToday } from "@/lib/server/reservations";
+import { getSession } from "@/lib/session";
 
 export const metadata: Metadata = { title: "Housekeeping" };
 
 export default async function HousekeepingPage() {
-  const [villas, tasks, arrivals] = await Promise.all([
+  const [villas, tasks, arrivals, housekeepers, rooms, session] = await Promise.all([
     getVillaStatuses(),
     getTasks(),
     getArrivalsToday(),
+    getHousekeepers(),
+    getRooms(),
+    getSession(),
   ]);
   const notReady = villas.filter((v) => ["cleaning", "inspection"].includes(v.status)).length;
+  // Note 2 §2 — only a manager/admin creates & assigns tasks.
+  const canManage = session?.groups?.includes("General Manager") ?? false;
   return (
     <>
       <OpsHeader
         greeting="Housekeeping"
         sub={`${arrivals.length} arrivals today · ${notReady} villas not yet ready`}
       />
-      <HousekeepingBoard villas={villas} tasks={tasks} />
+      <HousekeepingBoard
+        villas={villas}
+        tasks={tasks}
+        housekeepers={housekeepers}
+        rooms={rooms}
+        canManage={canManage}
+      />
     </>
   );
 }

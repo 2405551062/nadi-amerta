@@ -12,18 +12,19 @@ import { ReceptionBoard } from "./reception-board";
 import {
   getArrivalsToday, getInHouse, getDeparturesToday,
 } from "@/lib/server/reservations";
-import { getRequests } from "@/lib/server/requests";
+import { getRequests, getSupplyOptions } from "@/lib/server/requests";
 import { getVillaStatuses } from "@/lib/server/housekeeping";
 
 export const metadata: Metadata = { title: "Reception" };
 
 export default async function ReceptionPage() {
-  const [arrivals, inHouse, departures, requests, villas] = await Promise.all([
+  const [arrivals, inHouse, departures, requests, villas, supplies] = await Promise.all([
     getArrivalsToday(),
     getInHouse(),
     getDeparturesToday(),
     getRequests("all"),
     getVillaStatuses(),
+    getSupplyOptions(),
   ]);
   const today = new Date().toLocaleDateString("en-US", {
     weekday: "long", month: "long", day: "numeric", year: "numeric",
@@ -40,6 +41,7 @@ export default async function ReceptionPage() {
         departures={departures}
         requests={requests}
         villas={villas}
+        supplies={supplies}
       />
     </>
   );

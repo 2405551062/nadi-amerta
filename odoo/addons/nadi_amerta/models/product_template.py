@@ -29,6 +29,15 @@ class ProductTemplate(models.Model):
     )
     x_bedrooms = fields.Integer(string="Bedrooms")
     x_capacity = fields.Integer(string="Max guests")
+    # Room inventory (Note #3): a villa represents N identical bookable units.
+    # Availability = number of overlapping reservations is below this count.
+    x_total_rooms = fields.Integer(
+        string="Total rooms/units", default=1,
+        help="How many identical units of this villa can be booked at the same time.",
+    )
+    x_rooms_available_now = fields.Integer(
+        string="Rooms available now", compute="_compute_rooms_available_now",
+    )
     x_size_m2 = fields.Integer(string="Size (m²)")
     x_min_stay = fields.Integer(string="Minimum nights", default=2)
     x_slug = fields.Char(string="URL slug", index=True)
@@ -63,6 +72,15 @@ class ProductTemplate(models.Model):
         string="Service chapter",
     )
     x_duration = fields.Char(string="Duration")
+    # Note 2 §5 — a service runs at a realistic, villa-provided time & place, e.g.
+    # "Sunrise yoga starts 06:30 on the yoga deck." The guest picks the day; the
+    # villa fixes the time. x_service_time is a comma-separated list of the slots
+    # the villa offers for this service (single entry = a fixed daily time).
+    x_service_time = fields.Char(
+        string="Service time(s)",
+        help="Comma-separated realistic start times the villa offers, e.g. '06:30' or '10:00, 15:00'.",
+    )
+    x_service_location = fields.Char(string="Service location", help="Where it happens, e.g. 'Yoga deck'.")
 
     # -- F&B menu attributes (x_kind = fnb) ------------------------------
     x_category = fields.Char(string="Menu category")
@@ -72,11 +90,13 @@ class ProductTemplate(models.Model):
     reservation_ids = fields.One2many(
         "villa.reservation", "product_id", string="Reservations"
     )
+    # Note 2 §1 — the individual bookable units of this villa (villa.room).
+    room_ids = fields.One2many("villa.room", "product_id", string="Rooms / units")
 
-    def is_available_between(self, check_in, check_out):
-        """True if no non-cancelled reservation overlaps [check_in, check_out)."""
+    def _overlap_count(self, check_in, check_out):
+        """How many non-cancelled reservations overlap [check_in, check_out)."""
         self.ensure_one()
-        overlapping = self.env["villa.reservation"].search_count(
+        return self.env["villa.reservation"].search_count(
             [
                 ("product_id", "=", self.id),
                 ("state", "not in", ["cancelled", "draft"]),
@@ -84,4 +104,25 @@ class ProductTemplate(models.Model):
                 ("check_out_date", ">", check_in),
             ]
         )
-        return overlapping == 0
+
+    def is_available_between(self, check_in, check_out):
+        """True while at least one unit is free across [check_in, check_out)."""
+        self.ensure_one()
+        return self._overlap_count(check_in, check_out) < (self.x_total_rooms or 1)
+
+    def _compute_rooms_available_now(self):
+        """Units free today = total rooms minus reservations currently in-house."""
+        today = fields.Date.context_today(self)
+        for v in self:
+            if v.x_kind != "villa":
+                v.x_rooms_available_now = 0
+                continue
+            in_house = self.env["villa.reservation"].search_count(
+                [
+                    ("product_id", "=", v.id),
+                    ("state", "not in", ["cancelled", "draft", "checked_out"]),
+                    ("check_in_date", "<=", today),
+                    ("check_out_date", ">", today),
+                ]
+            )
+            v.x_rooms_available_now = max((v.x_total_rooms or 1) - in_house, 0)

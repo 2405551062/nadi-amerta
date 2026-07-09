@@ -17,7 +17,7 @@ export default async function OpsLayout({ children }: { children: React.ReactNod
   return (
     <div className="flex min-h-svh">
       <OpsLive />
-      <OpsSidebar user={session ? { name: session.name, role } : undefined} />
+      <OpsSidebar user={session ? { name: session.name, role, groups: session.groups } : undefined} />
       <main className="min-w-0 flex-1 bg-ivory-100">{children}</main>
     </div>
   );
