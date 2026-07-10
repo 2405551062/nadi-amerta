@@ -24,6 +24,11 @@ class VillaGuestRequest(models.Model):
     product_id = fields.Many2one(
         "product.template", string="Villa", related="reservation_id.product_id", store=True,
     )
+    # Which room/unit the request or complaint is about (Notes 2 §3).
+    room_id = fields.Many2one(
+        "villa.room", string="Room / unit",
+        domain="[('product_id', '=', product_id)]",
+    )
     detail = fields.Text(string="Detail")
     priority = fields.Selection(
         [("low", "Low"), ("medium", "Medium"), ("high", "High")],

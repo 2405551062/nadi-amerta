@@ -12,6 +12,7 @@ import { getKpis, getRevenueSeries } from "@/lib/server/finance";
 import { getArrivalsToday } from "@/lib/server/reservations";
 import { getVillaStatuses } from "@/lib/server/housekeeping";
 import { getVillaBySlugMap } from "@/lib/server/catalog";
+import { getSession } from "@/lib/session";
 import { idrShort } from "@/lib/format";
 
 export const metadata: Metadata = { title: "Operations" };
@@ -22,16 +23,28 @@ const ANOMALIES = [
 ];
 
 export default async function AdminDashboard() {
-  const [kpis, revenueSeries, arrivalsToday, villas, villaMap] = await Promise.all([
+  const [kpis, revenueSeries, arrivalsToday, villas, villaMap, session] = await Promise.all([
     getKpis(),
     getRevenueSeries(),
     getArrivalsToday(),
     getVillaStatuses(),
     getVillaBySlugMap(),
+    getSession(),
   ]);
+  // Accurate to today, computed server-side per request (no hydration drift).
+  const now = new Date();
+  const hour = now.getHours();
+  const partOfDay = hour < 12 ? "morning" : hour < 18 ? "afternoon" : "evening";
+  const firstName = (session?.name ?? "").split(" ")[0] || "team";
+  const today = now.toLocaleDateString("en-US", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
   return (
     <>
-      <OpsHeader greeting="Good morning, Made" sub="Monday, July 6, 2026 · Galungan in 4 days" />
+      <OpsHeader greeting={`Good ${partOfDay}, ${firstName}`} sub={today} />
 
       <Surface className="space-y-6 p-6 lg:p-10">
         {/* KPI row */}

@@ -14,6 +14,7 @@ interface OdooRequest {
   request_type: "request" | "complaint";
   partner_id: [number, string] | false;
   product_id: [number, string] | false;
+  room_id: [number, string] | false;
   detail: string | false;
   priority: "low" | "medium" | "high";
   state: RequestState;
@@ -23,7 +24,7 @@ interface OdooRequest {
 }
 
 const FIELDS = [
-  "name", "request_type", "partner_id", "product_id", "detail", "priority", "state",
+  "name", "request_type", "partner_id", "product_id", "room_id", "detail", "priority", "state",
   "create_date", "resolution_route", "maintenance_flagged",
 ];
 
@@ -41,6 +42,7 @@ function map(o: OdooRequest): GuestRequest {
     state: o.state,
     created: fmtCreated(o.create_date),
     villa: m2oName(o.product_id),
+    roomLabel: o.room_id ? o.room_id[1].split("·").pop()!.trim() : "",
     guestName: m2oName(o.partner_id),
     priority: o.priority,
     route: o.resolution_route || "none",
@@ -65,6 +67,7 @@ export interface CreateRequestInput {
   type: "request" | "complaint";
   subject: string;
   detail?: string;
+  roomId?: number;
 }
 
 export async function createRequest(input: CreateRequestInput): Promise<number> {
@@ -81,11 +84,39 @@ export async function createRequest(input: CreateRequestInput): Promise<number> 
   return create("villa.guest.request", {
     partner_id: pid,
     reservation_id: stays[0]?.id || false,
+    room_id: input.roomId || false,
     request_type: input.type,
     name: input.subject,
     detail: input.detail || false,
     priority: input.type === "complaint" ? "high" : "medium",
   });
+}
+
+export interface RequestRoom {
+  id: number;
+  code: string;
+}
+
+/** Rooms of the current guest's active-stay villa, for the request room picker. */
+export async function getMyStayRooms(): Promise<RequestRoom[]> {
+  if (!USE_ODOO) return [];
+  const pid = await currentPartnerId();
+  if (!pid) return [];
+  const stays = await searchRead<{ product_id: [number, string] | false }>(
+    "villa.reservation",
+    [["partner_id", "=", pid], ["state", "in", ["confirmed", "checked_in"]]],
+    ["product_id"],
+    { limit: 1, order: "check_in_date desc" }
+  );
+  const villaId = stays[0]?.product_id ? stays[0].product_id[0] : 0;
+  if (!villaId) return [];
+  const rows = await searchRead<{ id: number; code: string }>(
+    "villa.room",
+    [["product_id", "=", villaId], ["active", "=", true]],
+    ["code"],
+    { order: "code" }
+  );
+  return rows.map((r) => ({ id: r.id, code: r.code }));
 }
 
 export interface SupplyOption {

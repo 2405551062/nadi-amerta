@@ -81,10 +81,14 @@ export function FnbQueue({
                     <div className="flex items-center justify-between gap-2">
                       <p className="text-sm font-medium text-ink-900">
                         {villaNames[o.villaSlug] ?? o.villaSlug}
+                        {o.roomLabel ? <span className="font-mono text-teal-700"> · {o.roomLabel}</span> : null}
                       </p>
                       <span className="font-mono text-xs text-stone-500">{o.placed}</span>
                     </div>
-                    <p className="mt-0.5 text-xs text-stone-500">{o.guestName}</p>
+                    <p className="mt-0.5 text-xs text-stone-500">
+                      {o.guestName}
+                      {o.scheduledTime ? ` · for ${o.scheduledTime}` : ""}
+                    </p>
                     <ul className="mt-3 space-y-1">
                       {o.items.map((i) => (
                         <li key={i.name} className="flex justify-between gap-2 text-[13px] text-ink-700">

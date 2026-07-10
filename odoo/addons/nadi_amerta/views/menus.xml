@@ -11,6 +11,10 @@
               parent="menu_nadi_root" action="action_villas"
               sequence="20"/>
 
+    <menuitem id="menu_nadi_rooms" name="Rooms"
+              parent="menu_nadi_root" action="action_villa_room"
+              sequence="25"/>
+
     <menuitem id="menu_nadi_housekeeping" name="Housekeeping"
               parent="menu_nadi_root" action="action_hk_task"
               sequence="30"/>

@@ -425,7 +425,8 @@ export function ReceptionBoard({
                   {r.subject}
                 </p>
                 <p className="mt-0.5 text-xs text-stone-500">
-                  {r.villa} · {r.guestName} · {r.created} · {r.priority} priority
+                  {r.villa}
+                  {r.roomLabel ? <span className="font-mono text-teal-700"> · {r.roomLabel}</span> : null} · {r.guestName} · {r.created} · {r.priority} priority
                 </p>
               </div>
               <div className="flex flex-wrap items-center gap-2">

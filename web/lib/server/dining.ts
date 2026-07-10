@@ -49,7 +49,9 @@ interface OdooFnbOrder {
   id: number;
   partner_id: [number, string] | false;
   product_villa_id: [number, string] | false;
+  room_id: [number, string] | false;
   placed: string | false;
+  scheduled_time: string | false;
   note: string | false;
   state: FnbOrderState;
   line_ids: number[];
@@ -67,7 +69,7 @@ export async function getFnbOrders(): Promise<FnbOrder[]> {
   const orders = await searchRead<OdooFnbOrder>(
     "villa.fnb.order",
     [],
-    ["partner_id", "product_villa_id", "placed", "note", "state", "line_ids"],
+    ["partner_id", "product_villa_id", "room_id", "placed", "scheduled_time", "note", "state", "line_ids"],
     { order: "create_date desc" }
   );
   const lineIds = orders.flatMap((o) => o.line_ids);
@@ -85,6 +87,8 @@ export async function getFnbOrders(): Promise<FnbOrder[]> {
   return orders.map((o) => ({
     id: o.id,
     villaSlug: o.product_villa_id ? villaMap.get(o.product_villa_id[0])?.slug ?? "" : "",
+    // room_id display name is "Villa · CODE"; the code is what the kitchen needs.
+    roomLabel: o.room_id ? o.room_id[1].split("·").pop()!.trim() : "",
     guestName: m2oName(o.partner_id),
     items: (linesByOrder.get(o.id) ?? []).map((l) => ({
       name: m2oName(l.product_id),
@@ -93,12 +97,14 @@ export async function getFnbOrders(): Promise<FnbOrder[]> {
     })),
     state: o.state,
     placed: o.placed || "",
+    scheduledTime: o.scheduled_time || undefined,
     note: o.note || undefined,
   }));
 }
 
 export interface CreateOrderInput {
   villaId?: number;
+  roomId?: number;
   items: { productId: number; qty: number }[];
   note?: string;
   // Note 2 §4 — guest-chosen delivery timing.
@@ -112,12 +118,30 @@ export async function createFnbOrder(input: CreateOrderInput): Promise<number> {
   return create("villa.fnb.order", {
     partner_id: pid,
     product_villa_id: input.villaId || false,
+    room_id: input.roomId || false,
     placed: now,
     timing: input.timing === "scheduled" ? "scheduled" : "asap",
     scheduled_time: input.timing === "scheduled" ? input.scheduledTime || false : false,
     note: input.note || false,
     line_ids: input.items.map((i) => [0, 0, { product_id: i.productId, qty: i.qty }]),
   });
+}
+
+export interface DiningRoom {
+  id: number;
+  code: string;
+}
+
+/** Rooms of a villa, for the guest's "deliver to room" picker. */
+export async function getVillaRooms(villaId: number): Promise<DiningRoom[]> {
+  if (!USE_ODOO || !villaId) return [];
+  const rows = await searchRead<{ id: number; code: string }>(
+    "villa.room",
+    [["product_id", "=", villaId], ["active", "=", true]],
+    ["code"],
+    { order: "code" }
+  );
+  return rows.map((r) => ({ id: r.id, code: r.code }));
 }
 
 export async function advanceFnbOrder(id: number) {

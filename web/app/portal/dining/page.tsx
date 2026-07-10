@@ -5,7 +5,7 @@
  */
 import type { Metadata } from "next";
 import { DiningMenu } from "./dining-menu";
-import { getMenu } from "@/lib/server/dining";
+import { getMenu, getVillaRooms } from "@/lib/server/dining";
 import { getStays } from "@/lib/server/reservations";
 import { getVillaBySlugMap } from "@/lib/server/catalog";
 
@@ -21,6 +21,8 @@ export default async function DiningPage() {
   const inHouse = stays.find((s) => s.state === "checked_in");
   const villa = inHouse ? villaMap.get(inHouse.villaSlug) : undefined;
   const villaLabel = villa?.name ?? "Villa Tirta";
+  // Rooms of that villa, so the guest can say which unit to deliver to.
+  const rooms = villa ? await getVillaRooms(villa.id) : [];
   return (
     <main className="container-na py-12 lg:py-16">
       <div className="flex flex-wrap items-end justify-between gap-4">
@@ -33,7 +35,7 @@ export default async function DiningPage() {
           06:00 — 22:00 · to {villaLabel}
         </p>
       </div>
-      <DiningMenu menu={menu} villaId={villa?.id} villaLabel={villaLabel} />
+      <DiningMenu menu={menu} villaId={villa?.id} villaLabel={villaLabel} rooms={rooms} />
     </main>
   );
 }

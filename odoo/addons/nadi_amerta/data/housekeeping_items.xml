@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Notes 2 §4 — backfill the relational checklist (villa.housekeeping.item)
+         for tasks created before it existed, so backend + web stay in sync.
+         Runs on install AND update; idempotent. -->
+    <function model="villa.housekeeping.task" name="_migrate_checklist_items"/>
+</odoo>

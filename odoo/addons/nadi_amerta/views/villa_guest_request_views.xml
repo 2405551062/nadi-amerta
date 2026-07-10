@@ -10,6 +10,7 @@
                 <field name="request_type"/>
                 <field name="partner_id"/>
                 <field name="product_id"/>
+                <field name="room_id"/>
                 <field name="priority"/>
                 <field name="state" widget="badge"
                        decoration-danger="request_type == 'complaint' and state == 'open'"
@@ -37,6 +38,8 @@
                             <field name="request_type"/>
                             <field name="partner_id"/>
                             <field name="reservation_id"/>
+                            <field name="product_id" readonly="1"/>
+                            <field name="room_id"/>
                         </group>
                         <group>
                             <field name="priority"/>

@@ -65,9 +65,12 @@ class VillaHousekeepingTask(models.Model):
         string="Status", default="todo", tracking=True, index=True,
     )
     checklist_json = fields.Text(
-        string="Checklist",
-        help="JSON array of {label, done} — mirrors the housekeeping UI.",
+        string="Checklist (JSON)",
+        help="JSON array of {label, done} — mirrors the housekeeping UI. Kept in "
+             "sync with item_ids so the web app and Odoo backend agree.",
     )
+    # Notes 2 §4 — the real, tickable checklist shown in the Odoo backend form.
+    item_ids = fields.One2many("villa.housekeeping.item", "task_id", string="Checklist")
     # Villa board room status — the housekeeper's sign-off report management
     # (back office / HR) reviews after the checklist is complete.
     conclusion = fields.Text(string="Completion notes")
@@ -94,7 +97,12 @@ class VillaHousekeepingTask(models.Model):
                     [{"label": l, "done": i < done_upto} for i, l in enumerate(labels)]
                 )
             self._sync_room_label(vals)
-        return super().create(vals_list)
+        tasks = super().create(vals_list)
+        # Build the relational checklist rows from the seeded JSON.
+        for t in tasks:
+            if not t.item_ids and t.checklist_json:
+                t._items_from_json()
+        return tasks
 
     def write(self, vals):
         # Keep room_label mirrored on the room code when a room is chosen via API.
@@ -109,17 +117,59 @@ class VillaHousekeepingTask(models.Model):
             if room.exists():
                 vals["room_label"] = room.code
 
+    def _items_from_json(self):
+        """Create villa.housekeeping.item rows from checklist_json (once)."""
+        Item = self.env["villa.housekeeping.item"]
+        for t in self:
+            try:
+                data = json.loads(t.checklist_json or "[]")
+            except Exception:
+                data = []
+            Item.create([
+                {"task_id": t.id, "name": d.get("label") or "Step",
+                 "done": bool(d.get("done")), "sequence": (i + 1) * 10}
+                for i, d in enumerate(data)
+            ])
+
+    def _sync_checklist_json(self):
+        """Regenerate checklist_json from item_ids and auto-advance when all done.
+        Called whenever an item is ticked (backend form or web toggle)."""
+        for t in self:
+            items = t.item_ids.sorted(lambda i: (i.sequence, i.id))
+            t.checklist_json = json.dumps([{"label": i.name, "done": i.done} for i in items])
+            if items and all(i.done for i in items) and t.state not in ("inspection", "done"):
+                t.state = "inspection"
+                t.product_id.x_availability = "inspection"
+
+    @api.model
+    def _migrate_checklist_items(self):
+        """Backfill item_ids for tasks created before the relational checklist
+        (runs on install/update via data/housekeeping_items.xml). Idempotent.
+        Tasks that never had a checklist get the default one for their type, so
+        every task is tickable in both the backend and the web app."""
+        for t in self.search([]):
+            if t.item_ids:
+                continue
+            try:
+                has_json = bool(json.loads(t.checklist_json or "[]"))
+            except Exception:
+                has_json = False
+            if not has_json:
+                labels = CHECKLISTS.get(t.task_type, CHECKLISTS["turnover"])
+                done_upto = {"todo": 0, "doing": 2, "inspection": len(labels), "done": len(labels)}.get(t.state, 0)
+                t.checklist_json = json.dumps(
+                    [{"label": l, "done": i < done_upto} for i, l in enumerate(labels)]
+                )
+            t._items_from_json()
+
     def toggle_item(self, index):
-        """Flip one checklist item; auto-advance when all are done. Returns the list."""
+        """Flip one checklist item by position; syncing rewrites checklist_json
+        and auto-advances when all are done. Returns the list (web API reads it)."""
         self.ensure_one()
-        items = json.loads(self.checklist_json or "[]")
+        items = self.item_ids.sorted(lambda i: (i.sequence, i.id))
         if 0 <= index < len(items):
-            items[index]["done"] = not items[index]["done"]
-        self.checklist_json = json.dumps(items)
-        if items and all(i["done"] for i in items) and self.state != "done":
-            self.state = "inspection"
-            self.product_id.x_availability = "inspection"
-        return items
+            items[index].done = not items[index].done  # item.write triggers _sync_checklist_json
+        return json.loads(self.checklist_json or "[]")
 
     def action_submit(self, conclusion=None):
         """The housekeeper signs off: checklist must be fully checked; records

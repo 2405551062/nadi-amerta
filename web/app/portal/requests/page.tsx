@@ -5,12 +5,12 @@
  */
 import type { Metadata } from "next";
 import { RequestsPanel } from "./requests-panel";
-import { getRequests } from "@/lib/server/requests";
+import { getRequests, getMyStayRooms } from "@/lib/server/requests";
 
 export const metadata: Metadata = { title: "Requests" };
 
 export default async function RequestsPage() {
-  const requests = await getRequests("mine");
+  const [requests, rooms] = await Promise.all([getRequests("mine"), getMyStayRooms()]);
   return (
     <main className="container-na py-12 lg:py-16">
       <p className="eyebrow">Concierge</p>
@@ -19,7 +19,7 @@ export default async function RequestsPage() {
         Requests and concerns land directly with the front office and are tracked until resolved —
         nothing disappears into a lobby notebook.
       </p>
-      <RequestsPanel initial={requests} />
+      <RequestsPanel initial={requests} rooms={rooms} />
     </main>
   );
 }

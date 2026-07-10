@@ -9,6 +9,20 @@ import re
 
 from odoo import api, fields, models
 
+# Canonical per-villa unit counts — the single source of truth so a fresh clone
+# and an already-installed DB both converge to the same rooms without a manual
+# shell step. Keyed by product.template.x_slug.
+ROOM_COUNTS = {
+    "villa-tirta": 2,
+    "villa-surya": 3,
+    "villa-chandra": 4,
+    "villa-lotus": 3,
+    "villa-frangipani": 3,
+    "villa-hibiscus": 3,
+    "villa-bambu": 3,
+    "villa-jepun": 5,
+}
+
 
 class VillaRoom(models.Model):
     _name = "villa.room"
@@ -61,3 +75,16 @@ class VillaRoom(models.Model):
                 if not exists:
                     created |= self.create({"product_id": villa.id, "code": code})
         return created
+
+    @api.model
+    def _nadi_bootstrap_rooms(self):
+        """Ensure every villa has its canonical unit count and its room records.
+        Called from data/rooms.xml <function> so it runs on install AND update —
+        a freshly cloned repo gets its rooms with no manual shell step. Idempotent.
+        Only raises a villa's count (never shrinks) so manual additions survive."""
+        Villa = self.env["product.template"]
+        for slug, count in ROOM_COUNTS.items():
+            villa = Villa.search([("x_slug", "=", slug), ("x_kind", "=", "villa")], limit=1)
+            if villa and (not villa.x_total_rooms or villa.x_total_rooms < count):
+                villa.x_total_rooms = count
+        return self.generate_for_villas()

@@ -31,7 +31,34 @@
                     </group>
                     <field name="x_facilities" placeholder="One facility per line…"/>
                 </page>
+                <page string="Rooms" name="nadi_rooms" invisible="x_kind != 'villa'">
+                    <field name="x_total_rooms"/>
+                    <field name="room_ids">
+                        <tree editable="bottom">
+                            <field name="code"/>
+                            <field name="floor"/>
+                            <field name="status"/>
+                        </tree>
+                    </field>
+                </page>
             </xpath>
+        </field>
+    </record>
+
+    <!-- Villas list — shows the room count per villa (Notes 2 §2) -->
+    <record id="view_villa_tree_nadi" model="ir.ui.view">
+        <field name="name">product.template.tree.nadi.villa</field>
+        <field name="model">product.template</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+                <field name="x_villa_type"/>
+                <field name="x_view"/>
+                <field name="x_room_count_label" string="Rooms"/>
+                <field name="x_rooms_available_now" string="Available now"/>
+                <field name="x_availability" widget="badge"/>
+                <field name="list_price" string="Rate / night"/>
+            </tree>
         </field>
     </record>
 
@@ -40,6 +67,7 @@
         <field name="name">Villas</field>
         <field name="res_model">product.template</field>
         <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="view_villa_tree_nadi"/>
         <field name="domain">[('x_kind','=','villa')]</field>
         <field name="context">{'default_x_kind': 'villa'}</field>
     </record>

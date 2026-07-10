@@ -20,6 +20,12 @@ class VillaFnbOrder(models.Model):
         "product.template", string="Deliver to villa",
         domain=[("x_kind", "=", "villa")],
     )
+    # Which room/unit of the villa the food goes to — so the F&B employee knows
+    # exactly where the order came from and where to deliver it.
+    room_id = fields.Many2one(
+        "villa.room", string="Deliver to room",
+        domain="[('product_id', '=', product_villa_id)]",
+    )
     placed = fields.Char(string="Placed at")
     # Note 2 §4 — the guest chooses when the order is delivered: as soon as
     # ready, or a specific clock time they pick (e.g. 19:30).

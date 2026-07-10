@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_villa_room_tree" model="ir.ui.view">
+        <field name="name">villa.room.tree</field>
+        <field name="model">villa.room</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="code"/>
+                <field name="product_id"/>
+                <field name="floor"/>
+                <field name="status" widget="badge"
+                       decoration-success="status == 'ready'"
+                       decoration-info="status == 'occupied'"
+                       decoration-danger="status == 'maintenance'"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_villa_room_form" model="ir.ui.view">
+        <field name="name">villa.room.form</field>
+        <field name="model">villa.room</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="code"/>
+                        <field name="product_id"/>
+                        <field name="floor"/>
+                        <field name="status"/>
+                        <field name="active" invisible="1"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_villa_room" model="ir.actions.act_window">
+        <field name="name">Rooms</field>
+        <field name="res_model">villa.room</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+</odoo>

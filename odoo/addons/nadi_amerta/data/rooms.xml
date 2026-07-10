@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Note 2 §1 — generate villa.room records (and set canonical unit counts)
+         on install AND update, so a freshly cloned repo has rooms without a
+         manual `generate_for_villas()` shell step. Idempotent. Must load after
+         data/villas.xml so the villa records exist. -->
+    <function model="villa.room" name="_nadi_bootstrap_rooms"/>
+</odoo>

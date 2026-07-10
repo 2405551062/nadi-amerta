@@ -111,6 +111,7 @@ export interface GuestRequest {
   villa: string;
   guestName: string;
   priority: "high" | "medium" | "low";
+  roomLabel?: string; // which room/unit the request is about
   // Note 2 §3 — inventory requests draw stock; complaints route to engineering.
   route?: "inventory" | "maintenance" | "none";
   maintenanceFlagged?: boolean;
@@ -147,10 +148,12 @@ export type FnbOrderState = "received" | "kitchen" | "delivering" | "billed";
 export interface FnbOrder {
   id: number;
   villaSlug: string;
+  roomLabel?: string; // which room/unit the order is delivered to
   guestName: string;
   items: { name: string; qty: number; price: number }[];
   state: FnbOrderState;
   placed: string;
+  scheduledTime?: string;
   note?: string;
 }
 

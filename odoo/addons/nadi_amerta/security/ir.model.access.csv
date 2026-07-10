@@ -20,4 +20,8 @@ access_stock_move_fin,villa.stock.move.fin,model_villa_stock_move,group_nadi_fin
 access_villa_room_hk,villa.room.hk,model_villa_room,group_nadi_housekeeping,1,1,1,1
 access_villa_room_fo,villa.room.fo,model_villa_room,group_nadi_front_office,1,1,1,0
 access_villa_room_back,villa.room.back,model_villa_room,group_nadi_back_office,1,0,0,0
+access_villa_room_fnb,villa.room.fnb,model_villa_room,group_nadi_fnb,1,0,0,0
 access_hk_task_back,villa.housekeeping.task.back,model_villa_housekeeping_task,group_nadi_back_office,1,0,0,0
+access_hk_item_hk,villa.housekeeping.item.hk,model_villa_housekeeping_item,group_nadi_housekeeping,1,1,1,1
+access_hk_item_fo,villa.housekeeping.item.fo,model_villa_housekeeping_item,group_nadi_front_office,1,1,1,0
+access_hk_item_back,villa.housekeeping.item.back,model_villa_housekeeping_item,group_nadi_back_office,1,0,0,0

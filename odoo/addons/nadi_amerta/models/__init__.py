@@ -6,6 +6,7 @@ from . import res_partner
 from . import res_users
 from . import villa_reservation
 from . import villa_housekeeping_task
+from . import villa_housekeeping_item
 from . import villa_guest_request
 from . import villa_service_booking
 from . import villa_fnb_order

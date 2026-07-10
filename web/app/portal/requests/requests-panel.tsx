@@ -14,13 +14,20 @@ import type { GuestRequest } from "@/lib/types";
 import { EASE_WATER } from "@/components/motion";
 import { cn } from "@/lib/utils";
 
-export function RequestsPanel({ initial }: { initial: GuestRequest[] }) {
+export function RequestsPanel({
+  initial,
+  rooms = [],
+}: {
+  initial: GuestRequest[];
+  rooms?: { id: number; code: string }[];
+}) {
   const router = useRouter();
   const [rows, setRows] = useState<GuestRequest[]>(initial);
   const [formOpen, setFormOpen] = useState(false);
   const [type, setType] = useState<"request" | "complaint">("request");
   const [subject, setSubject] = useState("");
   const [detail, setDetail] = useState("");
+  const [roomId, setRoomId] = useState<number | "">("");
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,18 +37,20 @@ export function RequestsPanel({ initial }: { initial: GuestRequest[] }) {
       await fetch("/api/requests", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ type, subject, detail }),
+        body: JSON.stringify({ type, subject, detail, roomId: roomId || undefined }),
       });
+      const roomCode = rooms.find((r) => r.id === roomId)?.code;
       setRows((r) => [
         {
           id: Date.now(), type, subject, detail, state: "open",
-          created: "Just now", villa: "Your stay", guestName: "You",
+          created: "Just now", villa: "Your stay", roomLabel: roomCode ?? "", guestName: "You",
           priority: type === "complaint" ? "high" : "medium",
         },
         ...r,
       ]);
       setSubject("");
       setDetail("");
+      setRoomId("");
       setFormOpen(false);
       toast("Received by the front office", {
         description: "Someone picks this up within minutes during the day.",
@@ -104,6 +113,24 @@ export function RequestsPanel({ initial }: { initial: GuestRequest[] }) {
                     required
                   />
                 </div>
+                {rooms.length > 0 && (
+                  <div className="space-y-2">
+                    <Label htmlFor="req-room">Which room? (optional)</Label>
+                    <select
+                      id="req-room"
+                      value={roomId}
+                      onChange={(e) => setRoomId(e.target.value ? Number(e.target.value) : "")}
+                      className="h-12 w-full rounded-md border border-sand-400 bg-white px-3 text-sm text-ink-700"
+                    >
+                      <option value="">Not room-specific</option>
+                      {rooms.map((r) => (
+                        <option key={r.id} value={r.id}>
+                          {r.code}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
                 <div className="space-y-2">
                   <Label htmlFor="req-detail">Details (optional)</Label>
                   <Textarea
@@ -141,7 +168,9 @@ export function RequestsPanel({ initial }: { initial: GuestRequest[] }) {
                     <p className="font-medium text-ink-900">{r.subject}</p>
                     {r.detail && <p className="mt-1 text-[13px] leading-snug text-stone-500">{r.detail}</p>}
                     <p className="mt-2 text-xs text-stone-500">
-                      {r.villa} · {r.created} · {r.type === "complaint" ? "Concern" : "Request"}
+                      {r.villa}
+                      {r.roomLabel ? ` · ${r.roomLabel}` : ""} · {r.created} ·{" "}
+                      {r.type === "complaint" ? "Concern" : "Request"}
                     </p>
                   </div>
                   <StatusBadge status={r.state} />

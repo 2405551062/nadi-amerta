@@ -38,6 +38,10 @@ class ProductTemplate(models.Model):
     x_rooms_available_now = fields.Integer(
         string="Rooms available now", compute="_compute_rooms_available_now",
     )
+    # Human-readable room count for the Villas list, e.g. "3 rooms".
+    x_room_count_label = fields.Char(
+        string="Rooms", compute="_compute_room_count_label",
+    )
     x_size_m2 = fields.Integer(string="Size (m²)")
     x_min_stay = fields.Integer(string="Minimum nights", default=2)
     x_slug = fields.Char(string="URL slug", index=True)
@@ -109,6 +113,11 @@ class ProductTemplate(models.Model):
         """True while at least one unit is free across [check_in, check_out)."""
         self.ensure_one()
         return self._overlap_count(check_in, check_out) < (self.x_total_rooms or 1)
+
+    def _compute_room_count_label(self):
+        for v in self:
+            n = v.x_total_rooms or 0
+            v.x_room_count_label = "%d room%s" % (n, "" if n == 1 else "s") if v.x_kind == "villa" else ""
 
     def _compute_rooms_available_now(self):
         """Units free today = total rooms minus reservations currently in-house."""

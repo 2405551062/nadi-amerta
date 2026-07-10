@@ -21,16 +21,20 @@ export function DiningMenu({
   menu,
   villaId,
   villaLabel,
+  rooms = [],
 }: {
   menu: MenuItem[];
   villaId?: number;
   villaLabel: string;
+  rooms?: { id: number; code: string }[];
 }) {
   const [category, setCategory] = useState("All");
   const [cart, setCart] = useState<Record<number, number>>({});
   const [timing, setTiming] = useState<"asap" | "slot">("asap");
   // Note 2 §4 — the guest picks an exact delivery time.
   const [scheduledTime, setScheduledTime] = useState("19:00");
+  // The room/unit to deliver to, so the kitchen knows exactly where it goes.
+  const [roomId, setRoomId] = useState<number | "">(rooms[0]?.id ?? "");
   const [note, setNote] = useState("");
   const [open, setOpen] = useState(false);
   const [ordered, setOrdered] = useState(false);
@@ -69,20 +73,23 @@ export function DiningMenu({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           villaId,
+          roomId: roomId || undefined,
           items: Object.entries(cart).map(([id, qty]) => ({ productId: Number(id), qty })),
           timing: timing === "slot" ? "scheduled" : "asap",
           scheduledTime: timing === "slot" ? scheduledTime : undefined,
           note: note || undefined,
         }),
       });
+      const roomCode = rooms.find((r) => r.id === roomId)?.code;
+      const dest = roomCode ? `${villaLabel} · ${roomCode}` : villaLabel;
       setOpen(false);
       setCart({});
       setNote("");
       toast("Order received", {
         description:
           timing === "slot"
-            ? `Scheduled for ${scheduledTime} to ${villaLabel} · added to your folio.`
-            : `The kitchen has it — about 35 minutes to ${villaLabel} · added to your folio.`,
+            ? `Scheduled for ${scheduledTime} to ${dest} · added to your folio.`
+            : `The kitchen has it — about 35 minutes to ${dest} · added to your folio.`,
       });
     } catch {
       toast("Could not place the order — please try again.");
@@ -211,6 +218,28 @@ export function DiningMenu({
               <span className="font-display text-lg text-ink-900">Total</span>
               <span className="text-price text-teal-700">{idr(total)}</span>
             </div>
+
+            {/* Deliver-to room — the kitchen sees exactly which unit to bring it to. */}
+            {rooms.length > 0 && (
+              <div>
+                <Label htmlFor="dining-room" className="text-xs tracking-[0.1em] text-stone-500 uppercase">
+                  Deliver to room
+                </Label>
+                <select
+                  id="dining-room"
+                  value={roomId}
+                  onChange={(e) => setRoomId(e.target.value ? Number(e.target.value) : "")}
+                  className="mt-2 h-11 w-full rounded-md border border-sand-400 bg-white px-3 text-sm text-ink-700"
+                >
+                  <option value="">No specific room</option>
+                  {rooms.map((r) => (
+                    <option key={r.id} value={r.id}>
+                      {villaLabel} · {r.code}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
 
             <div>
               <Label className="text-xs tracking-[0.1em] text-stone-500 uppercase">Timing</Label>
