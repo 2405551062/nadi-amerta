@@ -44,8 +44,8 @@ To reproduce elsewhere: `bash scripts/wsl-docker-setup.sh` then `wsl --shutdown`
 
 ```bash
 # from Windows PowerShell — everything runs inside the WSL distro
-wsl -d Ubuntu-24.04 -u root -- bash -c "cd /mnt/c/xampp/htdocs/nadiamerta/odoo && docker compose up -d"
-wsl -d Ubuntu-24.04 -u root -- bash /mnt/c/xampp/htdocs/nadiamerta/odoo/scripts/init-db.sh
+wsl -d Ubuntu-24.04 -u root -- bash -c "cd /mnt/c/xampp/htdocs/nadi-amerta/odoo && docker compose up -d"
+wsl -d Ubuntu-24.04 -u root -- bash /mnt/c/xampp/htdocs/nadi-amerta/odoo/scripts/init-db.sh
 ```
 
 Then:
@@ -54,7 +54,7 @@ Then:
 
 After editing anything under `addons/nadi_amerta/`, apply it:
 ```bash
-wsl -d Ubuntu-24.04 -u root -- bash /mnt/c/xampp/htdocs/nadiamerta/odoo/scripts/update-module.sh
+wsl -d Ubuntu-24.04 -u root -- bash /mnt/c/xampp/htdocs/nadi-amerta/odoo/scripts/update-module.sh
 ```
 
 ## How the frontend talks to it
@@ -96,7 +96,7 @@ place / recommended:
    As long as a WSL process is attached, the VM stays up.
 
 To always-on it across reboots, add a Windows **Task Scheduler** job (trigger: At log on)
-running `wsl -d Ubuntu-24.04 -u root -- bash -lc "cd /mnt/c/xampp/htdocs/nadiamerta/odoo && docker compose up -d"`.
+running `wsl -d Ubuntu-24.04 -u root -- bash -lc "cd /mnt/c/xampp/htdocs/nadi-amerta/odoo && docker compose up -d"`.
 
 Health check any time: `curl http://localhost:8069/nadi/health` → `{"villas": 8}`.
 
